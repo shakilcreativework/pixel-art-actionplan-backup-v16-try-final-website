@@ -1106,4 +1106,20 @@ A running log capturing active engineering starts, process changes, and completi
 * **Regression Result**: Zero regressions across all creative engines, export pipeline, and responsive UI layout.
 * **Process Completed**: Task verified and marked 🟢 COMPLETED.
 
+---
+
+### [Log Entry 038] — Mosaic Strategy Dropdown Pruning for Normal Image Mode
+* **Date**: September 15, 2026
+* **Status**: 🟢 COMPLETED
+* **Task**: Restrict the `Mosaic Strategy` dropdown selector under `Normal Image` mode to keep strictly two feature options: `Default Pixel Art` and `Contrast-Aware Ridge & Silhouette`.
+* **Actual Changes Made**:
+  1. **UI Markup (`index.html`)**: Pruned `<select id="msMosaicStrategySelect">` options to retain strictly `<option value="default-pixel-art">Default Pixel Art</option>` and `<option value="contrast-edge">Contrast-Aware Ridge & Silhouette</option>`.
+  2. **Application Logic (`src/main.js`)**: Updated `msMosaicStrategySelect` event handling and `updateStrategyUI` logic to toggle sub-controls (`#msCtrlContrastEdge` with Edge Sensitivity & Ridge Sharpness sliders) cleanly between the 2 strategies.
+* **Verification Evidence**:
+  - Test Suite (`npm test`): 20 test files passed, **146 / 146 tests passed** (2.50s).
+  - Production Build (`npm run build`): **52 modules transformed cleanly**, dist generated in 878ms with 0 errors.
+* **Regression Result**: Zero regressions across all creative engines, export pipeline, and responsive UI layout.
+* **Process Completed**: Task verified and marked 🟢 COMPLETED.
+
+
 

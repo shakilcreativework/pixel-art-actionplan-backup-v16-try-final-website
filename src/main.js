@@ -1518,25 +1518,14 @@ class App {
     if (this.el.msMosaicStrategySelect) {
       const descriptions = {
         'default-pixel-art': 'Existing default Pixel Art Mosaic processing.',
-        'island-grid': 'Best for multiple independent sprites with different local grid alignment.',
-        'orthogonal-contour': 'Best for crisp grid-free orthogonal vector boundaries.',
-        'adaptive-quadtree': 'Best for mixed-detail artwork requiring different levels of geometric resolution.',
-        'integer-resample': 'Best for uniformly scaled pixel-art assets with reliable integer-scale detection.',
-        'contrast-edge': 'Best for silhouettes, mountain ridges, and high-contrast boundaries to prevent edge bleeding.',
-        'isoline-banded': 'Best for smooth sky and sunset gradients with clean harmonic color banding.',
-        'auto-detect': 'Analyze artwork and recommend the most suitable strategy.'
+        'contrast-edge': 'Best for silhouettes, mountain ridges, and high-contrast boundaries to prevent edge bleeding.'
       };
       const updateStrategyUI = (val) => {
         if (!this.el.msStrategyControls) return;
-        const isDefault = val === 'default-pixel-art' || val === 'auto-detect';
+        const isDefault = val === 'default-pixel-art';
         this.el.msStrategyControls.style.display = isDefault ? 'none' : 'block';
 
-        if (this.el.msCtrlIslandGrid) this.el.msCtrlIslandGrid.style.display = val === 'island-grid' ? 'block' : 'none';
-        if (this.el.msCtrlOrthogonal) this.el.msCtrlOrthogonal.style.display = val === 'orthogonal-contour' ? 'block' : 'none';
-        if (this.el.msCtrlQuadtree) this.el.msCtrlQuadtree.style.display = val === 'adaptive-quadtree' ? 'block' : 'none';
-        if (this.el.msCtrlResampler) this.el.msCtrlResampler.style.display = val === 'integer-resample' ? 'block' : 'none';
         if (this.el.msCtrlContrastEdge) this.el.msCtrlContrastEdge.style.display = val === 'contrast-edge' ? 'block' : 'none';
-        if (this.el.msCtrlIsolineBanded) this.el.msCtrlIsolineBanded.style.display = val === 'isoline-banded' ? 'block' : 'none';
       };
 
       this.el.msMosaicStrategySelect.addEventListener('change', (e) => {

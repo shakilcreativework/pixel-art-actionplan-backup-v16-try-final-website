@@ -170,7 +170,7 @@ class App {
         autoClean: true,
         noiseThreshold: 20,
         edgeSensitivity: 20,
-        manualTool: 'remove',
+        manualTool: null,
         protectedIds: new Set(),
         manualRemoveIds: new Set(),
         manualOverrides: {},
@@ -1300,7 +1300,13 @@ class App {
       btn.addEventListener('click', () => {
         this.el.toolButtons.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        this.state.activeTool = btn.getAttribute('data-tool');
+        const tool = btn.getAttribute('data-tool');
+        this.state.activeTool = tool;
+        if (tool === 'eraser') {
+          this.setMosaicManualTool('remove');
+        } else {
+          this.setMosaicManualTool(null);
+        }
       });
     });
 
@@ -2995,11 +3001,13 @@ class App {
 
     tools.forEach(item => {
       if (this.el[item.id]) {
-        this.el[item.id].classList.toggle('active', item.tool === tool);
+        this.el[item.id].classList.toggle('active', !!tool && item.tool === tool);
       }
     });
 
-    this.showToast(`Manual tool active: ${tool.toUpperCase()}`);
+    if (tool) {
+      this.showToast(`Manual tool active: ${tool.toUpperCase()}`);
+    }
   }
 
   resetMosaicAll() {

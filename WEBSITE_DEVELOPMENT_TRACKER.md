@@ -1136,6 +1136,23 @@ A running log capturing active engineering starts, process changes, and completi
 * **Regression Result**: Zero regressions across all creative engines, export pipeline, and responsive UI layout.
 * **Process Completed**: Task verified and marked 🟢 COMPLETED.
 
+---
+
+### [Log Entry 040] — Top Floating Canvas Toolbar Feature Fix for Mosaic Mode
+* **Date**: September 15, 2026
+* **Status**: 🟢 COMPLETED
+* **Task**: Fix top floating canvas toolbar (`#pixelToolbar`) so all editing tools (`Pencil`, `Eraser`, `Flood Fill`, `Eyedropper`, `Rectangle`, `Line`) execute their specific designated features instead of all being overridden by Eraser cell removal.
+* **Actual Changes Made**:
+  1. **Default State (`src/main.js`)**: Updated `this.state.mosaic.manualTool` default state from `'remove'` to `null`, ensuring standard canvas clicks run designated toolbar drawing features instead of forcing cell removal.
+  2. **Toolbar Event Listener (`src/main.js`)**: Updated `#pixelToolbar` click listener to set `manualTool = 'remove'` when `Eraser` is selected and `manualTool = null` when `Pencil`, `Flood Fill`, `Eyedropper`, `Rectangle`, or `Line` are selected.
+  3. **Sidebar Cleanup Sync (`src/main.js`)**: Updated `setMosaicManualTool(tool)` to remove `.active` styling from sidebar cleanup buttons when a standard toolbar drawing tool is selected.
+* **Verification Evidence**:
+  - Test Suite (`npm test`): 20 test files passed, **146 / 146 tests passed** (4.64s).
+  - Production Build (`npm run build`): **52 modules transformed cleanly**, dist generated in 2.94s with 0 errors.
+* **Regression Result**: Zero regressions across all creative engines, export pipeline, and responsive UI layout.
+* **Process Completed**: Task verified and marked 🟢 COMPLETED.
+
+
 
 
 

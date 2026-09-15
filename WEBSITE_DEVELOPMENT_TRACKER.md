@@ -1152,6 +1152,22 @@ A running log capturing active engineering starts, process changes, and completi
 * **Regression Result**: Zero regressions across all creative engines, export pipeline, and responsive UI layout.
 * **Process Completed**: Task verified and marked 🟢 COMPLETED.
 
+---
+
+### [Log Entry 041] — Grid Phase Align (X Offset & Y Offset) Controls Removal
+* **Date**: September 15, 2026
+* **Status**: 🟢 COMPLETED
+* **Task**: Remove the `Grid Phase Align (Offset)` section containing `X Offset` and `Y Offset` range sliders from the Artwork Mode sidebar layout.
+* **Actual Changes Made**:
+  1. **UI Markup (`index.html`)**: Removed `#msGridOffsetRow` container markup containing `Grid Phase Align (Offset)` header and `X Offset` / `Y Offset` range sliders.
+  2. **Application Logic (`src/main.js`)**: Removed `msGridOffsetRow`, `msGridOffsetXSlider`, `msGridOffsetYSlider`, `msGridOffsetXVal`, `msGridOffsetYVal` DOM element queries, input event listeners, and UI visibility toggling logic.
+* **Verification Evidence**:
+  - Test Suite (`npm test`): 20 test files passed, **146 / 146 tests passed** (2.65s).
+  - Production Build (`npm run build`): **52 modules transformed cleanly**, dist generated in 876ms with 0 errors.
+* **Regression Result**: Zero regressions across all creative engines, export pipeline, and responsive UI layout.
+* **Process Completed**: Task verified and marked 🟢 COMPLETED.
+
+
 
 
 

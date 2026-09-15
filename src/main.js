@@ -348,11 +348,6 @@ class App {
       msSourceArtTypeSelect: document.getElementById('msSourceArtTypeSelect'),
       msZeroLossBanner: document.getElementById('msZeroLossBanner'),
       msJpegNoticeBanner: document.getElementById('msJpegNoticeBanner'),
-      msGridOffsetRow: document.getElementById('msGridOffsetRow'),
-      msGridOffsetXSlider: document.getElementById('msGridOffsetXSlider'),
-      msGridOffsetYSlider: document.getElementById('msGridOffsetYSlider'),
-      msGridOffsetXVal: document.getElementById('msGridOffsetXVal'),
-      msGridOffsetYVal: document.getElementById('msGridOffsetYVal'),
       msStrategySection: document.getElementById('msStrategySection'),
       msSamplingGroup: document.getElementById('msSamplingGroup'),
       msColorPaletteSection: document.getElementById('msColorPaletteSection'),
@@ -1699,24 +1694,7 @@ class App {
       });
     }
 
-    // Mosaic Grid Phase Offset Sliders
-    if (this.el.msGridOffsetXSlider) {
-      this.el.msGridOffsetXSlider.addEventListener('input', (e) => {
-        const val = parseInt(e.target.value, 10) || 0;
-        this.state.mosaic.gridOffsetX = val;
-        if (this.el.msGridOffsetXVal) this.el.msGridOffsetXVal.textContent = `${val} px`;
-        this.renderCurrentEngine();
-      });
-    }
 
-    if (this.el.msGridOffsetYSlider) {
-      this.el.msGridOffsetYSlider.addEventListener('input', (e) => {
-        const val = parseInt(e.target.value, 10) || 0;
-        this.state.mosaic.gridOffsetY = val;
-        if (this.el.msGridOffsetYVal) this.el.msGridOffsetYVal.textContent = `${val} px`;
-        this.renderCurrentEngine();
-      });
-    }
 
     // Mosaic Background Removal Filter Pill buttons
     this.el.msBgModeButtons?.forEach(btn => {
@@ -2861,9 +2839,6 @@ class App {
     if (this.el.msJpegNoticeBanner) {
       const isJpeg = typeof this.state.sourceFileName === 'string' && /\.(jpe?g)$/i.test(this.state.sourceFileName);
       this.el.msJpegNoticeBanner.style.display = (isPixelArt && isJpeg) ? 'block' : 'none';
-    }
-    if (this.el.msGridOffsetRow) {
-      this.el.msGridOffsetRow.style.display = isPixelArt ? 'block' : 'none';
     }
     if (this.el.msStrategySection) {
       this.el.msStrategySection.style.display = isPixelArt ? 'none' : 'block';

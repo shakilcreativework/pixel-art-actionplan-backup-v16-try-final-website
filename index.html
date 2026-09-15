@@ -672,21 +672,34 @@
           <!-- Mosaic Controls Panel -->
           <div class="engine-panel" id="panel-mosaic" style="display: none;">
             <!-- Source Artwork Mode & Pixel Grid Lock Section -->
+            <!-- Source Artwork Mode & Input Classification Section -->
             <section class="sidebar-section">
               <div class="section-header">
-                <span class="section-title">Input Classification</span>
-                <span class="section-badge" id="msSourceModeBadge" style="background: rgba(16, 185, 129, 0.2); color: var(--accent-emerald);">Auto-Detect</span>
+                <span class="section-title">Artwork Mode</span>
+                <span class="section-badge" id="msSourceModeBadge" style="background: rgba(16, 185, 129, 0.2); color: var(--accent-emerald);">🎨 Already Pixel Art</span>
               </div>
               <div class="control-group">
-                <div class="control-label-row"><span class="control-label">Input Pipeline Mode</span></div>
+                <div class="control-label-row"><span class="control-label">Select Feature Mode</span></div>
                 <div class="filter-pill-group" id="msInputModeGroup">
-                  <button type="button" class="filter-pill-btn active" data-input-mode="auto" id="msInputModeAutoBtn" title="Automatically classify Photo vs Pure Pixel Art">⚡ Auto-Detect</button>
-                  <button type="button" class="filter-pill-btn" data-input-mode="pixel-art" id="msInputModePixelArtBtn" title="Pure Pixel Art: Zero color loss, exact grid alignment, zero added edges">🎨 Pure Pixel Art</button>
-                  <button type="button" class="filter-pill-btn" data-input-mode="photo" id="msInputModePhotoBtn" title="Photo / Continuous Shading with OKLab gradient blending">📷 Photo</button>
+                  <button type="button" class="filter-pill-btn" data-input-mode="photo" id="msInputModePhotoBtn" title="Normal Image: Creative generator for photos and illustrations with shading, blending, quantization, and edge controls">📷 Normal Image</button>
+                  <button type="button" class="filter-pill-btn active" data-input-mode="pixel-art" id="msInputModePixelArtBtn" title="Already Pixel Art: Pure 1:1 cell and vector conversion. Zero shading, zero blending, zero quantization, zero added edges">🎨 Already Pixel Art</button>
+                  <button type="button" class="filter-pill-btn" data-input-mode="auto" id="msInputModeAutoBtn" title="Auto-Detect: Automatically classify image as Normal Image or Already Pixel Art">⚡ Auto-Detect</button>
                 </div>
-                <!-- Detection Result Live Banner -->
-                <div id="msDetectionBanner" style="display: none; margin-top: 8px; padding: 8px 10px; border-radius: 6px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); font-size: 11px;">
-                  <div id="msDetectionText" style="color: var(--accent-emerald); font-weight: 500;"></div>
+                
+                <!-- Zero-Loss Mode Banner for Already Pixel Art -->
+                <div id="msZeroLossBanner" style="margin-top: 8px; padding: 8px 10px; border-radius: 6px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); font-size: 11px;">
+                  <div style="display: flex; align-items: center; gap: 6px; color: var(--accent-emerald); font-weight: 600;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <span>Pure 1:1 Pixel Conversion Active</span>
+                  </div>
+                  <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 3px; line-height: 1.35;">
+                    Exact 1:1 colors & integer grid preserved. Continuous shading, blending, quantization, and edge filters are completely bypassed.
+                  </div>
+                </div>
+
+                <!-- Detection Result Live Banner for Auto-Detect -->
+                <div id="msDetectionBanner" style="display: none; margin-top: 8px; padding: 8px 10px; border-radius: 6px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.25); font-size: 11px;">
+                  <div id="msDetectionText" style="color: var(--accent-primary); font-weight: 500;"></div>
                   <div style="display: flex; gap: 6px; margin-top: 6px;">
                     <button type="button" class="filter-pill-btn active" id="msConfirmPixelArtBtn" style="padding: 2px 8px; font-size: 10px;">Use Pixel Art</button>
                     <button type="button" class="filter-pill-btn" id="msOverridePhotoBtn" style="padding: 2px 8px; font-size: 10px;">Treat as Photo</button>
@@ -698,7 +711,7 @@
                 </select>
               </div>
 
-              <div class="control-group">
+              <div class="control-group" id="msStrategySection" style="display: none;">
                 <div class="control-label-row"><span class="control-label">Mosaic Strategy</span></div>
                 <select id="msMosaicStrategySelect">
                   <option value="default-pixel-art" selected>Default Pixel Art</option>
@@ -863,7 +876,7 @@
                   <option value="column">Column Offset (50% Stagger)</option>
                 </select>
               </div>
-              <div class="control-group">
+              <div class="control-group" id="msSamplingGroup">
                 <div class="control-label-row"><span class="control-label">Sampling Method</span></div>
                 <select id="msSamplingSelect">
                   <option value="perceptual-oklab" selected>OKLab Perceptual (Gradient Weighted)</option>
@@ -880,7 +893,7 @@
             </section>
 
             <!-- Color & Dithering Section -->
-            <section class="sidebar-section">
+            <section class="sidebar-section" id="msColorPaletteSection">
               <div class="section-header">
                 <span class="section-title">Color & Palette</span>
                 <span class="section-badge">OKLab</span>

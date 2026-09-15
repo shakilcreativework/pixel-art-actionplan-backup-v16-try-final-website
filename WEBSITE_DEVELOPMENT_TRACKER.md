@@ -11,10 +11,10 @@
 | Metric | Status | Details |
 |---|:---:|---|
 | **Core Suite** | 🟢 100% | All 7 creative design engines + Mosaic v2 Dual-Input Pipeline |
-| **Test Suite** | 🟢 100% | **140 / 140 tests passing** across 19 test files (`npm test` / `vitest`) |
+| **Test Suite** | 🟢 100% | **142 / 142 tests passing** across 19 test files (`npm test` / `vitest`) |
 | **ESLint Validation** | 🟢 100% | Clean — 0 errors, 0 warnings across all source and test files |
 | **Production Build** | 🟢 100% | Clean bundle — **52 modules**, 0 errors (`npm run build`) |
-| **Last Updated** | 🟢 Current | September 11, 2026 |
+| **Last Updated** | 🟢 Current | September 15, 2026 |
 
 ---
 
@@ -991,6 +991,56 @@ A running log capturing active engineering starts, process changes, and completi
   - Test Suite: `npm test` -> 19 test files passed, 140 / 140 tests passed in 2.84s.
   - Production Build: `npm run build` -> 52 modules transformed cleanly, dist generated in 906ms with 0 errors.
 * **Regression Result**: Zero regressions across all 7 creative engines, export pipelines, and responsive layout.
+* **Process Completed**: Task verified and marked 🟢 COMPLETED.
+ 
+---
+
+### [Log Entry 034] — Dual-Mode Mosaic Features (Normal Image vs. Already Pixel Art)
+* **Date**: September 15, 2026
+* **Status**: 🟢 COMPLETED
+* **Task**: Implement explicit Dual-Mode Mosaic features cleanly separating Normal Image (full creative generation pipeline) and Already Pixel Art (pure 1:1 cell/vector conversion with guaranteed bypass of Continuous Shading, Blending, Quantization, and Edge Detection), while ensuring background removal remains strictly optional.
+* **Problem**:
+  - Previously, the Mosaic UI did not expose an active, visible mode toggle between "Normal Image" and "Already Pixel Art", creating confusion about whether continuous shading, palette quantization, dithering, or edge filtering were altering already-pixelated artwork.
+  - Users needed clarity that when processing "Already Pixel Art", none of Continuous Shading, Blending, Quantization, or Edge Detection are ever applied.
+  - Background removal must not be mandatory or forced on every run, but remain available on-demand when isolating design icons and graphic elements on a transparent background.
+* **Intended Result**:
+  - High-visibility 2-Feature Mode Selector in the Mosaic sidebar: `📷 Normal Image` vs `🎨 Already Pixel Art` (+ `⚡ Auto-Detect`).
+  - Active `Zero-Loss Mode` banner displayed when "Already Pixel Art" is selected, dynamically hiding creative-generation-only tools (Continuous Sampling methods, Palette quantization presets, Dithering, and Trim) that do not apply to pure pixel art.
+  - In `MosaicEngine.processPathwayB`, strictly enforce `palette = 'original-rgb'`, `ditherAlgorithm = 'none'`, `samplingMethod = 'center-exact'`, zero shading, and zero edge deformation.
+  - Background removal defaults to `None (Keep All)` preserving 100% of cells for full compositions/scenes, while activating cleanly when `Remove White`, `Remove Black`, or `Pick Color` are selected for isolated icons.
+  - Maintain 100% test pass rate and clean build.
+* **Scope**:
+  - `index.html`
+  - `src/main.js`
+  - `src/core/mosaic/MosaicEngine.js`
+  - `test/mosaic-already-pixel-art.test.js`
+  - `WEBSITE_DEVELOPMENT_TRACKER.md`
+* **Acceptance Criteria**:
+  1. User can toggle between Normal Image and Already Pixel Art with 1 click; UI adapts dynamically.
+  2. Already Pixel Art strictly bypasses continuous shading, blending, quantization, and edge filters.
+  3. Background removal is optional: `None (Keep All)` preserves 100% of cells; background removal only triggers when selected.
+  4. All unit tests pass cleanly (`npm test`: 142/142 passing).
+  5. Production build (`npm run build`) builds cleanly with 52 modules and 0 errors.
+* **Actual Changes Made**:
+  1. **UI Markup (`index.html`)**:
+     - Enhanced the Input Classification section with a high-visibility 2-Mode Selector (`📷 Normal Image`, `🎨 Already Pixel Art`, `⚡ Auto-Detect`).
+     - Added the `Zero-Loss Mode` status banner explaining exact 1:1 color and grid preservation with shading/blending bypassed.
+     - Assigned unique section IDs (`msSamplingGroup`, `msColorPaletteSection`, `msStrategySection`, `msTrimSection`) for clean dynamic display toggling.
+  2. **Application Logic (`src/main.js`)**:
+     - Set default mosaic mode to `'pixel-art'`.
+     - Cached mode controls in `this.el`.
+     - Attached event listeners for mode pill buttons and confirmation/override prompts.
+     - Implemented `setMosaicInputMode()` and `updateMosaicModeUI()` to dynamically show/hide generation-only tools.
+     - Wired up live synchronization in `renderCurrentEngine()`.
+  3. **Core Engine (`src/core/mosaic/MosaicEngine.js`)**:
+     - Explicitly locked `palette = 'original-rgb'` and `ditherAlgorithm = 'none'` in `processPathwayB`.
+  4. **Automated Tests (`test/mosaic-already-pixel-art.test.js`)**:
+     - Added unit tests verifying strict bypass of shading, quantization, and dithering in Already Pixel Art mode.
+     - Added unit tests verifying optional background removal (`None` keeps 100% of cells; `Remove White` isolates designs).
+* **Verification Evidence**:
+  - Test Suite: `npm test` -> 19 test files passed, 142 / 142 tests passed in 2.59s.
+  - Production Build: `npm run build` -> 52 modules transformed cleanly, dist generated in 879ms with 0 errors.
+* **Regression Result**: Zero regressions across all 7 creative engines, export pipeline, and responsive UI.
 * **Process Completed**: Task verified and marked 🟢 COMPLETED.
 
 

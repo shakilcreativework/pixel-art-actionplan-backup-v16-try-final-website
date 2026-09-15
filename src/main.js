@@ -119,7 +119,7 @@ class App {
         bgColor: '#0f172a'
       },
       mosaic: {
-        inputMode: 'auto',
+        inputMode: 'pixel-art',
         detectedMode: 'pixel-art',
         sourceArtType: 'already-pixel-art',
         mosaicStrategy: 'default-pixel-art',
@@ -200,6 +200,7 @@ class App {
     this.initEventListeners();
     this.initTouchAndGestureListeners();
     this.initHistory();
+    this.updateMosaicModeUI(this.state.mosaic.inputMode, 'pixel-art');
     this.loadDemoImage();
   }
 
@@ -346,6 +347,11 @@ class App {
 
       // Mosaic controls
       msSourceArtTypeSelect: document.getElementById('msSourceArtTypeSelect'),
+      msZeroLossBanner: document.getElementById('msZeroLossBanner'),
+      msStrategySection: document.getElementById('msStrategySection'),
+      msSamplingGroup: document.getElementById('msSamplingGroup'),
+      msColorPaletteSection: document.getElementById('msColorPaletteSection'),
+      msTrimSection: document.getElementById('msTrimSection'),
       msMosaicStrategySelect: document.getElementById('msMosaicStrategySelect'),
       msStrategyDesc: document.getElementById('msStrategyDesc'),
       msStrategyRecBadge: document.getElementById('msStrategyRecBadge'),
@@ -857,17 +863,7 @@ class App {
         this.el.msDetectionBanner.style.display = 'none';
       }
 
-      if (this.el.msSourceModeBadge) {
-        if (res.pathway === 'pixel-art') {
-          this.el.msSourceModeBadge.textContent = '🎨 Pure Pixel Art';
-          this.el.msSourceModeBadge.style.background = 'rgba(16, 185, 129, 0.2)';
-          this.el.msSourceModeBadge.style.color = 'var(--accent-emerald)';
-        } else {
-          this.el.msSourceModeBadge.textContent = '📷 Photo';
-          this.el.msSourceModeBadge.style.background = 'rgba(59, 130, 246, 0.2)';
-          this.el.msSourceModeBadge.style.color = 'var(--accent-primary)';
-        }
-      }
+      this.updateMosaicModeUI(this.state.mosaic.inputMode, res.pathway);
 
       if (res.strategyRecommendation && this.el.msStrategyRecBadge) {
         this.el.msStrategyRecBadge.style.display = 'block';
@@ -1683,6 +1679,28 @@ class App {
       this.el.msTrimPreviewToggle.addEventListener('change', (e) => {
         this.state.mosaic.trimPreview = e.target.checked;
         this.renderCurrentEngine();
+      });
+    }
+
+    // Mosaic Feature Mode (Normal Image vs Already Pixel Art + Auto-Detect)
+    this.el.msInputModeButtons?.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const mode = btn.getAttribute('data-input-mode');
+        if (mode) {
+          this.setMosaicInputMode(mode);
+        }
+      });
+    });
+
+    if (this.el.msConfirmPixelArtBtn) {
+      this.el.msConfirmPixelArtBtn.addEventListener('click', () => {
+        this.setMosaicInputMode('pixel-art');
+      });
+    }
+
+    if (this.el.msOverridePhotoBtn) {
+      this.el.msOverridePhotoBtn.addEventListener('click', () => {
+        this.setMosaicInputMode('photo');
       });
     }
 
@@ -2800,6 +2818,62 @@ class App {
 
     if (triggerRender) {
       this.renderCurrentEngine();
+    }
+  }
+
+  setMosaicInputMode(mode, triggerRender = true) {
+    this.state.mosaic.inputMode = mode;
+    this.state.mosaic.sourceArtType = (mode === 'photo') ? 'normal' : 'already-pixel-art';
+
+    this.el.msInputModeButtons?.forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-input-mode') === mode);
+    });
+
+    const isPixelArt = mode === 'pixel-art' || (mode === 'auto' && this.state.mosaic.detectedMode === 'pixel-art');
+    this.updateMosaicModeUI(mode, isPixelArt ? 'pixel-art' : 'photo');
+
+    if (triggerRender) {
+      this.renderCurrentEngine();
+    }
+
+    if (mode === 'pixel-art') {
+      this.showToast('Already Pixel Art: Pure 1:1 cell & vector conversion active (Zero Loss)');
+    } else if (mode === 'photo') {
+      this.showToast('Normal Image: Continuous shading & creative generation active');
+    } else {
+      this.showToast('Auto-Detect Mode: Classifying image input type...');
+    }
+  }
+
+  updateMosaicModeUI(inputMode, activePathway) {
+    const isPixelArt = activePathway === 'pixel-art' || (inputMode === 'pixel-art');
+
+    if (this.el.msZeroLossBanner) {
+      this.el.msZeroLossBanner.style.display = isPixelArt ? 'block' : 'none';
+    }
+    if (this.el.msStrategySection) {
+      this.el.msStrategySection.style.display = isPixelArt ? 'none' : 'block';
+    }
+    if (this.el.msSamplingGroup) {
+      this.el.msSamplingGroup.style.display = isPixelArt ? 'none' : 'block';
+    }
+    if (this.el.msColorPaletteSection) {
+      this.el.msColorPaletteSection.style.display = isPixelArt ? 'none' : 'block';
+    }
+    if (this.el.msTrimSection) {
+      this.el.msTrimSection.style.display = isPixelArt ? 'none' : 'block';
+    }
+
+    if (this.el.msSourceModeBadge) {
+      if (isPixelArt) {
+        this.el.msSourceModeBadge.textContent = '🎨 Already Pixel Art';
+        this.el.msSourceModeBadge.style.background = 'rgba(16, 185, 129, 0.2)';
+        this.el.msSourceModeBadge.style.color = 'var(--accent-emerald)';
+      } else {
+        this.el.msSourceModeBadge.textContent = '📷 Normal Image';
+        this.el.msSourceModeBadge.style.background = 'rgba(59, 130, 246, 0.2)';
+        this.el.msSourceModeBadge.style.color = 'var(--accent-primary)';
+      }
     }
   }
 

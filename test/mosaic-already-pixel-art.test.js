@@ -291,6 +291,69 @@ describe('Mosaic Engine — Already Pixel Art & Grid Lock Features', () => {
     expect(result.grid[3][3].isRemoved).toBe(false);
     expect(result.grid[3][3].color).toBe('rgb(255,255,255)');
   });
+
+  it('Already Pixel Art Mode strictly bypasses shading, palette quantization, and dithering', () => {
+    const width = 16;
+    const height = 16;
+    const data = new Uint8ClampedArray(width * height * 4);
+    // Fill with a vibrant custom color not in GameBoy palette
+    for (let i = 0; i < width * height; i++) {
+      data[i * 4] = 255;
+      data[i * 4 + 1] = 100;
+      data[i * 4 + 2] = 50;
+      data[i * 4 + 3] = 255;
+    }
+
+    const result = MosaicEngine.process({ width, height, data }, {
+      inputMode: 'pixel-art',
+      tileSize: 4,
+      palette: 'gameboy', // Should be strictly bypassed in Pathway B
+      ditherAlgorithm: 'floyd-steinberg' // Should be strictly bypassed in Pathway B
+    });
+
+    expect(result.pathway).toBe('pixel-art');
+    expect(result.palette).toBe('original-rgb');
+    expect(result.ditherAlgorithm).toBe('none');
+    expect(result.samplingMethod).toBe('center-exact');
+    // Color must remain exact original RGB
+    expect(result.tiles[0].color).toBe('rgb(255,100,50)');
+  });
+
+  it('Background removal is strictly optional: None preserves 100% of cells', () => {
+    const width = 16;
+    const height = 16;
+    const data = new Uint8ClampedArray(width * height * 4);
+    // Background white (255,255,255), center square blue (0,0,255)
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const idx = (y * width + x) * 4;
+        const isCenter = x >= 4 && x < 12 && y >= 4 && y < 12;
+        data[idx] = isCenter ? 0 : 255;
+        data[idx + 1] = isCenter ? 0 : 255;
+        data[idx + 2] = isCenter ? 255 : 255;
+        data[idx + 3] = 255;
+      }
+    }
+
+    // 1. None (Keep All): 100% of cells preserved
+    const keepAllResult = MosaicEngine.process({ width, height, data }, {
+      inputMode: 'pixel-art',
+      tileSize: 4,
+      bgRemovalMode: 'none'
+    });
+    expect(keepAllResult.tiles.length).toBe(16); // 4x4 grid = 16 cells all kept
+    expect(keepAllResult.grid[0][0].isRemoved).toBe(false);
+
+    // 2. Remove White (Isolated Graphic): background removed
+    const removeBgResult = MosaicEngine.process({ width, height, data }, {
+      inputMode: 'pixel-art',
+      tileSize: 4,
+      bgRemovalMode: 'white'
+    });
+    expect(removeBgResult.grid[0][0].isRemoved).toBe(true);
+    expect(removeBgResult.grid[1][1].isRemoved).toBe(false);
+    expect(removeBgResult.grid[1][1].color).toBe('rgb(0,0,255)');
+  });
 });
 
 

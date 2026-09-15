@@ -841,6 +841,8 @@ export class MosaicEngine {
       rotation,
       stagger: 'none',
       samplingMethod: 'center-exact',
+      palette: 'original-rgb',
+      ditherAlgorithm: 'none',
       outlineMode: options.outlineMode || 'none',
       outlineColor: options.outlineColor || '#000000',
       outlineWidth: options.outlineWidth || 1,

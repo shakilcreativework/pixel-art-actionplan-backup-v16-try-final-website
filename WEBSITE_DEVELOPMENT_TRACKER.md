@@ -187,7 +187,7 @@ These extension features have been fully implemented, verified via automated tes
 | Test File | Tests | Status |
 |---|:---:|:---:|
 | `test/pixel-art.test.js` | 15 | 🟢 PASS |
-| `test/mosaic-already-pixel-art.test.js` | 7 | 🟢 PASS |
+| `test/mosaic-already-pixel-art.test.js` | 9 | 🟢 PASS |
 | `test/mosaic-architecture-stages.test.js` | 5 | 🟢 PASS |
 | `test/mosaic-background-removal.test.js` | 9 | 🟢 PASS |
 | `test/mosaic-pixel-perfect-preservation.test.js` | 12 | 🟢 PASS |
@@ -202,7 +202,10 @@ These extension features have been fully implemented, verified via automated tes
 | `test/mosaic-boundary-fringe-purifier.test.js` | 1 | 🟢 PASS |
 | `test/auto-fit-stock.test.js` | 6 | 🟢 PASS |
 | `test/mosaic-multi-strategy.test.js` | 6 | 🟢 PASS |
-| **Total Passed** | **112 / 112** | **🟢 100% PASS** |
+| `test/mosaic-strategies-and-sampling.test.js` | 12 | 🟢 PASS |
+| `test/mosaic-v2-pure-pixel-pipeline.test.js` | 13 | 🟢 PASS |
+| `test/mosaic-quality-verification-toggle.test.js` | 3 | 🟢 PASS |
+| **Total Passed** | **142 / 142** | **🟢 100% PASS** |
 
 ---
 

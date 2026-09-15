@@ -199,7 +199,7 @@ Every file listed below exists in the repository as of September 11, 2026.
 | Test File | Tests | Status |
 |---|:---:|:---:|
 | `test/pixel-art.test.js` | 15 | 🟢 PASS |
-| `test/mosaic-already-pixel-art.test.js` | 7 | 🟢 PASS |
+| `test/mosaic-already-pixel-art.test.js` | 9 | 🟢 PASS |
 | `test/mosaic-architecture-stages.test.js` | 5 | 🟢 PASS |
 | `test/mosaic-background-removal.test.js` | 9 | 🟢 PASS |
 | `test/mosaic-pixel-perfect-preservation.test.js` | 12 | 🟢 PASS |
@@ -217,7 +217,7 @@ Every file listed below exists in the repository as of September 11, 2026.
 | `test/mosaic-strategies-and-sampling.test.js` | 12 | 🟢 PASS |
 | `test/mosaic-v2-pure-pixel-pipeline.test.js` | 13 | 🟢 PASS |
 | `test/mosaic-quality-verification-toggle.test.js` | 3 | 🟢 PASS |
-| **Total** | **140 / 140** | **🟢 100% PASS** |
+| **Total** | **142 / 142** | **🟢 100% PASS** |
 
 ---
 

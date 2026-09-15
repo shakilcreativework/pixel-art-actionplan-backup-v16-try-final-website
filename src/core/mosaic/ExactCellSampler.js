@@ -50,23 +50,65 @@ export class ExactCellSampler {
     for (let r = 0; r < rows; r++) {
       const rowArr = [];
       const cellY = offsetY + r * cellSize;
-
       for (let c = 0; c < cols; c++) {
         const cellX = offsetX + c * cellSize;
-
         // Exact Center Pixel Coordinate
         const centerX = Math.min(width - 1, Math.max(0, cellX + Math.floor(cellSize / 2)));
         const centerY = Math.min(height - 1, Math.max(0, cellY + Math.floor(cellSize / 2)));
         const centerIdx = (centerY * width + centerX) * 4;
 
-        const cr = data[centerIdx];
-        const cg = data[centerIdx + 1];
-        const cb = data[centerIdx + 2];
-        const ca = data[centerIdx + 3];
+        // 1. Dominant Area Frequency Sampling (Unblended Majority Color)
+        const colorFreq = new Map();
+        let maxCount = 0;
+        let dominantR = data[centerIdx];
+        let dominantG = data[centerIdx + 1];
+        let dominantB = data[centerIdx + 2];
+        let dominantA = data[centerIdx + 3];
+        let totalOpaquePixels = 0;
+        let uniqueColorCount = 0;
 
-        // Mixel Check: test 4 corners of the cell against center
+        for (let py = cellY; py < Math.min(height, cellY + cellSize); py++) {
+          for (let px = cellX; px < Math.min(width, cellX + cellSize); px++) {
+            const pIdx = (py * width + px) * 4;
+            const pa = data[pIdx + 3];
+            if (pa >= 10) {
+              totalOpaquePixels++;
+              const pr = data[pIdx];
+              const pg = data[pIdx + 1];
+              const pb = data[pIdx + 2];
+              const key = `${pr},${pg},${pb}`;
+              const count = (colorFreq.get(key) || 0) + 1;
+              colorFreq.set(key, count);
+              if (count > maxCount) {
+                maxCount = count;
+                dominantR = pr;
+                dominantG = pg;
+                dominantB = pb;
+                dominantA = pa;
+              }
+            }
+          }
+        }
+        uniqueColorCount = colorFreq.size;
+
+        // Use center pixel by default, fallback to dominant frequency if center is transparent
+        let cr = data[centerIdx];
+        let cg = data[centerIdx + 1];
+        let cb = data[centerIdx + 2];
+        let ca = data[centerIdx + 3];
+
+        if (ca < 10 && dominantA >= 10 && totalOpaquePixels >= (cellSize * cellSize * 0.25)) {
+          cr = dominantR;
+          cg = dominantG;
+          cb = dominantB;
+          ca = dominantA;
+        }
+
+        // 2. Cell Variance Guard & Mixel Check
         let hasMixel = false;
-        if (cellSize >= 4 && ca >= 10) {
+        let isNonUniform = false;
+
+        if (uniqueColorCount > 2 || (cellSize >= 4 && ca >= 10)) {
           const checkPoints = [
             [cellX + 1, cellY + 1],
             [cellX + cellSize - 2, cellY + 1],
@@ -87,8 +129,12 @@ export class ExactCellSampler {
           }
         }
 
-        if (hasMixel) {
-          mixelWarnings.push({ col: c, row: r, x: cellX, y: cellY });
+        if (uniqueColorCount > 2 && totalOpaquePixels > 0) {
+          isNonUniform = true;
+        }
+
+        if (hasMixel || isNonUniform) {
+          mixelWarnings.push({ col: c, row: r, x: cellX, y: cellY, isNonUniform });
         }
 
         const isOccupied = ca >= 10;
@@ -123,6 +169,8 @@ export class ExactCellSampler {
         });
 
         cell.hasMixel = hasMixel;
+        cell.isNonUniform = isNonUniform;
+        cell.uniqueColorCount = uniqueColorCount;
         cell.designState = isOccupied ? 'DESIGN' : 'BACKGROUND_CONFIRMED';
         cell.isRemoved = !isOccupied;
 

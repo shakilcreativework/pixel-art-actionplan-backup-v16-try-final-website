@@ -1183,45 +1183,26 @@ export class MosaicEngine {
     } else if (mode === 'grouped' || mode === 'grouped-stock') {
       // -----------------------------------------------------------------------
       // MODE: GROUPED BY COLOR LAYER (ADOBE STOCK & MARKETPLACE STANDARD)
-      // 1-Click Ungroup in Illustrator / Inkscape / CorelDraw
+      // 1-Click Ungroup in Illustrator / Inkscape / CorelDraw with 2D Block Merge
       // -----------------------------------------------------------------------
       const colorGroups = new Map();
 
-      for (let r = 0; r < numRows; r++) {
-        let runStartCol = -1;
-        let runColor = null;
-        let runStartX = 0;
-        let runY = 0;
-
-        for (let c = 0; c < numCols; c++) {
-          const cell = grid[r][c];
-          const isActive = cell && !cell.isRemoved && cell.sample.a >= 10;
-          const cellColor = isActive ? (cell.color || '#ffffff') : null;
-
-          if (shape === 'square' && rotation === 0) {
-            // Merge horizontal contiguous cells of identical color
-            if (cellColor !== runColor) {
-              if (runColor && runStartCol !== -1) {
-                const runW = (c - runStartCol) * tileSize;
-                if (!colorGroups.has(runColor)) colorGroups.set(runColor, []);
-                colorGroups.get(runColor).push({ x: runStartX, y: runY, width: runW, height: tileSize });
-              }
-              runStartCol = isActive ? c : -1;
-              runColor = cellColor;
-              runStartX = isActive ? cell.x : 0;
-              runY = isActive ? cell.y : 0;
-            }
-          } else if (isActive) {
-            if (!colorGroups.has(cellColor)) colorGroups.set(cellColor, []);
-            colorGroups.get(cellColor).push(cell);
-          }
+      if (shape === 'square' && rotation === 0) {
+        const merged2D = MosaicEngine._merge2DBlocks(grid, numRows, numCols, tileSize);
+        for (const block of merged2D) {
+          if (!colorGroups.has(block.color)) colorGroups.set(block.color, []);
+          colorGroups.get(block.color).push(block);
         }
-
-        // Flush end of row run
-        if (shape === 'square' && rotation === 0 && runColor && runStartCol !== -1) {
-          const runW = (numCols - runStartCol) * tileSize;
-          if (!colorGroups.has(runColor)) colorGroups.set(runColor, []);
-          colorGroups.get(runColor).push({ x: runStartX, y: runY, width: runW, height: tileSize });
+      } else {
+        for (let r = 0; r < numRows; r++) {
+          for (let c = 0; c < numCols; c++) {
+            const cell = grid[r][c];
+            if (cell && !cell.isRemoved && cell.sample.a >= 10) {
+              const cellColor = cell.color || '#ffffff';
+              if (!colorGroups.has(cellColor)) colorGroups.set(cellColor, []);
+              colorGroups.get(cellColor).push(cell);
+            }
+          }
         }
       }
 
@@ -1246,39 +1227,21 @@ export class MosaicEngine {
 
     } else if (mode === 'optimized') {
       // -----------------------------------------------------------------------
-      // MODE: HORIZONTAL RUN-LENGTH MERGE (FLAT UNGROUPED)
+      // MODE: 2D GREEDY SCANLINE BLOCK MERGE (FLAT UNGROUPED)
       // -----------------------------------------------------------------------
       svg += `  <g id="mosaic-cells">\n`;
-      for (let r = 0; r < numRows; r++) {
-        let runStartCol = -1;
-        let runColor = null;
-        let runStartX = 0;
-        let runY = 0;
-
-        for (let c = 0; c < numCols; c++) {
-          const cell = grid[r][c];
-          const isActive = cell && !cell.isRemoved && cell.sample.a >= 10;
-          const cellColor = isActive ? (cell.color || '#ffffff') : null;
-
-          if (shape === 'square' && rotation === 0) {
-            if (cellColor !== runColor) {
-              if (runColor && runStartCol !== -1) {
-                const runW = (c - runStartCol) * tileSize;
-                svg += `    <rect x="${formatNum(runStartX)}" y="${formatNum(runY)}" width="${formatNum(runW)}" height="${formatNum(tileSize)}" fill="${runColor}" />\n`;
-              }
-              runStartCol = isActive ? c : -1;
-              runColor = cellColor;
-              runStartX = isActive ? cell.x : 0;
-              runY = isActive ? cell.y : 0;
-            }
-          } else if (isActive) {
+      if (shape === 'square' && rotation === 0) {
+        const merged2D = MosaicEngine._merge2DBlocks(grid, numRows, numCols, tileSize);
+        for (const block of merged2D) {
+          svg += `    <rect x="${formatNum(block.x)}" y="${formatNum(block.y)}" width="${formatNum(block.width)}" height="${formatNum(block.height)}" fill="${block.color}" />\n`;
+        }
+      } else {
+        for (let r = 0; r < numRows; r++) {
+          for (let c = 0; c < numCols; c++) {
+            const cell = grid[r][c];
+            if (!cell || cell.isRemoved || cell.sample.a < 10) continue;
             svg += MosaicEngine._formatShapeSVG(cell, shape, tileSize, rotation, formatNum, '    ', true);
           }
-        }
-
-        if (shape === 'square' && rotation === 0 && runColor && runStartCol !== -1) {
-          const runW = (numCols - runStartCol) * tileSize;
-          svg += `    <rect x="${formatNum(runStartX)}" y="${formatNum(runY)}" width="${formatNum(runW)}" height="${formatNum(tileSize)}" fill="${runColor}" />\n`;
         }
       }
       svg += `  </g>\n`;
@@ -1564,6 +1527,93 @@ export class MosaicEngine {
       }
     }
   }
+
+  /**
+   * 2D Greedy Scanline Rectangular Block Aggregator for Square Tile Vectorization.
+   */
+  static _merge2DBlocks(grid, numRows, numCols, tileSize) {
+    const rowRuns = [];
+    for (let r = 0; r < numRows; r++) {
+      const runsInRow = [];
+      let runStartCol = -1;
+      let runColor = null;
+      let runStartX = 0;
+      let runY = 0;
+
+      for (let c = 0; c < numCols; c++) {
+        const cell = grid[r][c];
+        const isActive = cell && !cell.isRemoved && cell.sample.a >= 10;
+        const cellColor = isActive ? (cell.color || '#ffffff') : null;
+
+        if (cellColor !== runColor) {
+          if (runColor && runStartCol !== -1) {
+            runsInRow.push({
+              x: runStartX,
+              y: runY,
+              startCol: runStartCol,
+              endCol: c - 1,
+              width: (c - runStartCol) * tileSize,
+              height: tileSize,
+              color: runColor,
+              merged: false
+            });
+          }
+          runStartCol = isActive ? c : -1;
+          runColor = cellColor;
+          runStartX = isActive ? cell.x : 0;
+          runY = isActive ? cell.y : 0;
+        }
+      }
+      if (runColor && runStartCol !== -1) {
+        runsInRow.push({
+          x: runStartX,
+          y: runY,
+          startCol: runStartCol,
+          endCol: numCols - 1,
+          width: (numCols - runStartCol) * tileSize,
+          height: tileSize,
+          color: runColor,
+          merged: false
+        });
+      }
+      rowRuns.push(runsInRow);
+    }
+
+    const finalBlocks = [];
+    for (let r = 0; r < numRows; r++) {
+      for (const run of rowRuns[r]) {
+        if (run.merged) continue;
+        run.merged = true;
+
+        let currentHeight = tileSize;
+        for (let nextR = r + 1; nextR < numRows; nextR++) {
+          const matchingRunIndex = rowRuns[nextR].findIndex(candidate =>
+            !candidate.merged &&
+            candidate.startCol === run.startCol &&
+            candidate.endCol === run.endCol &&
+            candidate.color === run.color
+          );
+
+          if (matchingRunIndex !== -1) {
+            rowRuns[nextR][matchingRunIndex].merged = true;
+            currentHeight += tileSize;
+          } else {
+            break;
+          }
+        }
+
+        finalBlocks.push({
+          x: run.x,
+          y: run.y,
+          width: run.width,
+          height: currentHeight,
+          color: run.color
+        });
+      }
+    }
+    return finalBlocks;
+  }
 }
+
 
 

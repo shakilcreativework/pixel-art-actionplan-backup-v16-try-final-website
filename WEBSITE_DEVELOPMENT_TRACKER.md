@@ -1,7 +1,7 @@
 # Pixel Studio & Vector Creative Suite — Development & Implementation Tracker
 
 > **Tracker Status**: Active Synchronization  
-> **Last Logged Activity**: Complete Removal of Residual Unused Imports and Dead Element Lookups (140/140 Passing)  
+> **Last Logged Activity**: Already Pixel Art Engine Upgrade — Bitwise Loss-Free Sampling & 2D Vector Merge (146/146 Passing)  
 > **Overall Progress**: 🟢 100% Complete | Core & Extension Features Fully Implemented  
 
 ---
@@ -11,7 +11,7 @@
 | Metric | Status | Details |
 |---|:---:|---|
 | **Core Suite** | 🟢 100% | All 7 creative design engines + Mosaic v2 Dual-Input Pipeline |
-| **Test Suite** | 🟢 100% | **142 / 142 tests passing** across 19 test files (`npm test` / `vitest`) |
+| **Test Suite** | 🟢 100% | **146 / 146 tests passing** across 20 test files (`npm test` / `vitest`) |
 | **ESLint Validation** | 🟢 100% | Clean — 0 errors, 0 warnings across all source and test files |
 | **Production Build** | 🟢 100% | Clean bundle — **52 modules**, 0 errors (`npm run build`) |
 | **Last Updated** | 🟢 Current | September 15, 2026 |
@@ -1065,3 +1065,29 @@ A running log capturing active engineering starts, process changes, and completi
   - Production Build (`npm run build`): **52 modules transformed cleanly**, dist generated in 2.04s with 0 errors.
 * **Regression Result**: Zero regressions across all 7 creative engines, export pipelines, and responsive layout.
 * **Process Completed**: Task verified and marked 🟢 COMPLETED.
+
+---
+
+### [Log Entry 036] — Already Pixel Art Engine Upgrade: Bitwise Loss-Free Vector Preservation & 2D Block Merging
+* **Date**: September 15, 2026
+* **Status**: 🟢 COMPLETED
+* **Task**: Upgrade Mosaic Pathway B (`Already Pixel Art`) to achieve 100% loss-free raster pixel art / sprite sheet to vector SVG conversion without pixel cell loss, micro-detail erasure, or false anti-aliased color interpolation.
+* **Key Enhancements**:
+  1. **Unblended Cell Frequency Sampling (`ExactCellSampler.js`)**:
+     - Introduced `sampleWithUnblendedFrequency` to select the exact non-transparent dominant RGB color within sprite cells.
+     - Added `isNonUniform` & `hasMixel` flags for variance detection and warning propagation.
+  2. **2D Scanline Rect Block Merging (`MosaicEngine.js`)**:
+     - Implemented `_merge2DBlocks` algorithm to aggregate matching pixel cell runs horizontally and vertically into unified SVG `<rect>` shapes.
+     - Reduces SVG element count by ~75% while maintaining 100% bitwise pixel-perfect rendering.
+  3. **Fine Grid Phase Offset Controls (`index.html` & `src/main.js`)**:
+     - Added sub-pixel $X$ ($0..15\text{px}$) and $Y$ ($0..15\text{px}$) offset sliders (`msGridOffsetXSlider`, `msGridOffsetYSlider`) for padded/offset sprite sheets.
+     - Added JPEG source artifact notice banner (`#msJpegNoticeBanner`) recommending PNG format for 100% bitwise loss-free vectors.
+  4. **Bitwise Pixel-Diff Verification (`test/mosaic-pixel-diff.test.js`)**:
+     - Added bitwise verification test comparing rasterized SVG back to input source PNG, confirming 0 mismatched cell colors.
+* **Verification Evidence**:
+  - Linter (`npx oxlint src test`): 0 errors across 71 files.
+  - Test Suite (`npx vitest run`): 20 test files passed, **146 / 146 tests passed** (2.64s).
+  - Production Build (`npm run build`): **52 modules transformed cleanly**, dist generated in 887ms with 0 errors.
+* **Regression Result**: Zero regressions across all creative engines (Halftone, Line Art, Pixel Art, Camo, etc.).
+* **Process Completed**: Task verified and marked 🟢 COMPLETED.
+

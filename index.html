@@ -697,6 +697,34 @@
                   </div>
                 </div>
 
+                <!-- JPEG Format Lossy Notice Banner -->
+                <div id="msJpegNoticeBanner" style="display: none; margin-top: 8px; padding: 8px 10px; border-radius: 6px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); font-size: 11px;">
+                  <div style="display: flex; align-items: center; gap: 6px; color: var(--accent-amber, #f59e0b); font-weight: 600;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <span>JPEG Source Detected</span>
+                  </div>
+                  <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 3px; line-height: 1.35;">
+                    Source image is JPEG with compression artifacts. PNG or lossless formats are recommended for 100% bitwise pixel-perfect vectors.
+                  </div>
+                </div>
+
+                <!-- Fine Grid Phase Offset Sliders -->
+                <div id="msGridOffsetRow" style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px; background: rgba(255, 255, 255, 0.03); padding: 8px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.05);">
+                  <div class="control-label-row">
+                    <span class="control-label" style="font-size: 11px;">Grid Phase Align (Offset)</span>
+                  </div>
+                  <div style="display: flex; gap: 10px;">
+                    <div style="flex: 1;">
+                      <div class="control-label-row" style="margin-bottom: 2px;"><span class="control-label" style="font-size: 10px;">X Offset</span><span class="control-value" id="msGridOffsetXVal" style="font-size: 10px;">0 px</span></div>
+                      <input type="range" id="msGridOffsetXSlider" min="0" max="15" value="0" step="1" style="width: 100%;">
+                    </div>
+                    <div style="flex: 1;">
+                      <div class="control-label-row" style="margin-bottom: 2px;"><span class="control-label" style="font-size: 10px;">Y Offset</span><span class="control-value" id="msGridOffsetYVal" style="font-size: 10px;">0 px</span></div>
+                      <input type="range" id="msGridOffsetYSlider" min="0" max="15" value="0" step="1" style="width: 100%;">
+                    </div>
+                  </div>
+                </div>
+
                 <!-- Detection Result Live Banner for Auto-Detect -->
                 <div id="msDetectionBanner" style="display: none; margin-top: 8px; padding: 8px 10px; border-radius: 6px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.25); font-size: 11px;">
                   <div id="msDetectionText" style="color: var(--accent-primary); font-weight: 500;"></div>

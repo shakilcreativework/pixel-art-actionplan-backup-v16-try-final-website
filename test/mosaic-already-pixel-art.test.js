@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { MosaicEngine } from '../src/core/mosaic/MosaicEngine.js';
 import { PixelGridDetector } from '../src/core/mosaic/PixelGridDetector.js';
+import { ExactCellSampler } from '../src/core/mosaic/ExactCellSampler.js';
 
 describe('Mosaic Engine — Already Pixel Art & Grid Lock Features', () => {
   it('already-pixel-art mode performs exact 1:1 center pixel sampling without edge color blending', () => {
@@ -354,7 +355,52 @@ describe('Mosaic Engine — Already Pixel Art & Grid Lock Features', () => {
     expect(removeBgResult.grid[1][1].isRemoved).toBe(false);
     expect(removeBgResult.grid[1][1].color).toBe('rgb(0,0,255)');
   });
+
+  it('MosaicEngine._merge2DBlocks correctly merges adjacent horizontal and vertical identical color runs', () => {
+    // 4x4 grid of pure red cells
+    const grid = [];
+    for (let r = 0; r < 4; r++) {
+      const row = [];
+      for (let c = 0; c < 4; c++) {
+        row.push({
+          col: c, row: r, x: c * 16, y: r * 16,
+          isRemoved: false, color: 'rgb(255,0,0)',
+          sample: { a: 255 }
+        });
+      }
+      grid.push(row);
+    }
+
+    const blocks = MosaicEngine._merge2DBlocks(grid, 4, 4, 16);
+    // All 16 cells of matching color should merge into 1 single 64x64 rect!
+    expect(blocks.length).toBe(1);
+    expect(blocks[0].width).toBe(64);
+    expect(blocks[0].height).toBe(64);
+    expect(blocks[0].color).toBe('rgb(255,0,0)');
+  });
+
+  it('ExactCellSampler flags non-uniform gradient cells without falsifying blended colors', () => {
+    const width = 8;
+    const height = 8;
+    const data = new Uint8ClampedArray(width * height * 4);
+
+    // Multi-color gradient within a single 8x8 cell (4 colors)
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const idx = (y * width + x) * 4;
+        data[idx] = (x * 30) % 255;
+        data[idx + 1] = (y * 30) % 255;
+        data[idx + 2] = 100;
+        data[idx + 3] = 255;
+      }
+    }
+
+    const sampled = ExactCellSampler.sample({ width, height, data }, { cellSize: 8 });
+    expect(sampled.cells[0].isNonUniform).toBe(true);
+    expect(sampled.cells[0].hasMixel).toBe(true);
+  });
 });
+
 
 
 

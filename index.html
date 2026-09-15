@@ -681,12 +681,12 @@
               <div class="control-group">
                 <div class="control-label-row"><span class="control-label">Select Feature Mode</span></div>
                 <div class="filter-pill-group" id="msInputModeGroup">
-                  <button type="button" class="filter-pill-btn" data-input-mode="photo" id="msInputModePhotoBtn" title="Normal Image: Creative generator for photos and illustrations with shading, blending, quantization, and edge controls">📷 Normal Image</button>
-                  <button type="button" class="filter-pill-btn active" data-input-mode="pixel-art" id="msInputModePixelArtBtn" title="Already Pixel Art: Pure 1:1 cell and vector conversion. Zero shading, zero blending, zero quantization, zero added edges">🎨 Already Pixel Art</button>
+                  <button type="button" class="filter-pill-btn active" data-input-mode="photo" id="msInputModePhotoBtn" title="Normal Image: Creative generator for photos and illustrations with shading, blending, quantization, and edge controls">📷 Normal Image</button>
+                  <button type="button" class="filter-pill-btn" data-input-mode="pixel-art" id="msInputModePixelArtBtn" title="Already Pixel Art: Pure 1:1 cell and vector conversion. Zero shading, zero blending, zero quantization, zero added edges">🎨 Already Pixel Art</button>
                 </div>
                 
                 <!-- Zero-Loss Mode Banner for Already Pixel Art -->
-                <div id="msZeroLossBanner" style="margin-top: 8px; padding: 8px 10px; border-radius: 6px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); font-size: 11px;">
+                <div id="msZeroLossBanner" style="display: none; margin-top: 8px; padding: 8px 10px; border-radius: 6px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); font-size: 11px;">
                   <div style="display: flex; align-items: center; gap: 6px; color: var(--accent-emerald); font-weight: 600;">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                     <span>Pure 1:1 Pixel Conversion Active</span>
@@ -708,7 +708,7 @@
                 </div>
 
                 <!-- Fine Grid Phase Offset Sliders -->
-                <div id="msGridOffsetRow" style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px; background: rgba(255, 255, 255, 0.03); padding: 8px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.05);">
+                <div id="msGridOffsetRow" style="display: none; margin-top: 10px; display: flex; flex-direction: column; gap: 8px; background: rgba(255, 255, 255, 0.03); padding: 8px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.05);">
                   <div class="control-label-row">
                     <span class="control-label" style="font-size: 11px;">Grid Phase Align (Offset)</span>
                   </div>
@@ -724,8 +724,8 @@
                   </div>
                 </div>
                 <select id="msSourceArtTypeSelect" style="display: none;">
-                  <option value="normal">Normal Image / Photo (Continuous Shading)</option>
-                  <option value="already-pixel-art" selected>Already Pixel Art (Exact 1:1 Cell Preservation)</option>
+                  <option value="normal" selected>Normal Image / Photo (Continuous Shading)</option>
+                  <option value="already-pixel-art">Already Pixel Art (Exact 1:1 Cell Preservation)</option>
                 </select>
               </div>
 

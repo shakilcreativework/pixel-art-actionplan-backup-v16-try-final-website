@@ -1121,5 +1121,21 @@ A running log capturing active engineering starts, process changes, and completi
 * **Regression Result**: Zero regressions across all creative engines, export pipeline, and responsive UI layout.
 * **Process Completed**: Task verified and marked 🟢 COMPLETED.
 
+---
+
+### [Log Entry 039] — Normal Image Default Selection Alignment
+* **Date**: September 15, 2026
+* **Status**: 🟢 COMPLETED
+* **Task**: Set `📷 Normal Image` (`photo` mode) as the default active Feature Mode selection in the Mosaic sidebar layout and application state.
+* **Actual Changes Made**:
+  1. **UI Markup (`index.html`)**: Added `active` class to `#msInputModePhotoBtn` (`📷 Normal Image`), removed `active` from `#msInputModePixelArtBtn`, and set `selected` on `<option value="normal">` in `#msSourceArtTypeSelect`.
+  2. **Application Logic (`src/main.js`)**: Updated `this.state.mosaic` default state to `inputMode: 'photo'`, `detectedMode: 'photo'`, `sourceArtType: 'normal'`, and initialized UI with `this.updateMosaicModeUI(this.state.mosaic.inputMode, 'photo')`.
+* **Verification Evidence**:
+  - Test Suite (`npm test`): 20 test files passed, **146 / 146 tests passed** (2.47s).
+  - Production Build (`npm run build`): **52 modules transformed cleanly**, dist generated in 892ms with 0 errors.
+* **Regression Result**: Zero regressions across all creative engines, export pipeline, and responsive UI layout.
+* **Process Completed**: Task verified and marked 🟢 COMPLETED.
+
+
 
 

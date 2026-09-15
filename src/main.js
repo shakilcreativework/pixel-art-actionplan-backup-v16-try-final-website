@@ -119,9 +119,9 @@ class App {
         bgColor: '#0f172a'
       },
       mosaic: {
-        inputMode: 'pixel-art',
-        detectedMode: 'pixel-art',
-        sourceArtType: 'already-pixel-art',
+        inputMode: 'photo',
+        detectedMode: 'photo',
+        sourceArtType: 'normal',
         mosaicStrategy: 'default-pixel-art',
         minIslandSize: 4,
         islandProximity: 4,
@@ -200,7 +200,7 @@ class App {
     this.initEventListeners();
     this.initTouchAndGestureListeners();
     this.initHistory();
-    this.updateMosaicModeUI(this.state.mosaic.inputMode, 'pixel-art');
+    this.updateMosaicModeUI(this.state.mosaic.inputMode, 'photo');
     this.loadDemoImage();
   }
 

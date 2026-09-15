@@ -294,15 +294,17 @@ export class MosaicEngine {
           const override = manualOverrides[`${colIdx},${rowIdx}`] || manualOverrides[`${colIdx}:${rowIdx}`];
           let isOverriddenErase = false;
           if (override) {
-            if (override.type === 'erase') {
+            if (override.type === 'erase' || override.action === 'remove' || override.removed === true) {
               sample.a = 0;
               isOverriddenErase = true;
             } else if (override.color) {
               const overrideRgb = parseColorToRgb(override.color);
-              sample.r = overrideRgb[0];
-              sample.g = overrideRgb[1];
-              sample.b = overrideRgb[2];
-              sample.a = 255;
+              if (overrideRgb) {
+                sample.r = overrideRgb[0];
+                sample.g = overrideRgb[1];
+                sample.b = overrideRgb[2];
+                sample.a = 255;
+              }
             }
           }
 
@@ -764,6 +766,13 @@ export class MosaicEngine {
           } else if (override.action === 'keep' || override.removed === false || override.type === 'paint') {
             cell.isRemoved = false;
             cell.occupied = true;
+            if (override.color) {
+              cell.color = override.color;
+              const overrideRgb = parseColorToRgb(override.color);
+              if (overrideRgb) {
+                cell.sample = { r: overrideRgb[0], g: overrideRgb[1], b: overrideRgb[2], a: 255 };
+              }
+            }
           }
         }
       }

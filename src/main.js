@@ -2552,7 +2552,7 @@ class App {
             cell.isRemoved = false;
             cell.sample = { r: rgb[0], g: rgb[1], b: rgb[2], a: 255 };
             cell.color = colorStr;
-            this.state.mosaic.manualOverrides[`${currC},${currR}`] = { type: 'paint', color: colorStr };
+            this.state.mosaic.manualOverrides[`${currC},${currR}`] = { type: 'paint', color: colorStr, action: 'keep', removed: false };
 
             if (currR > 0) queue.push([currR - 1, currC]);
             if (currR < numRows - 1) queue.push([currR + 1, currC]);
@@ -2617,7 +2617,7 @@ class App {
             cell.isRemoved = false;
             cell.sample = { r: rgb[0], g: rgb[1], b: rgb[2], a: 255 };
             cell.color = colorStr;
-            this.state.mosaic.manualOverrides[`${c},${r}`] = { type: 'paint', color: colorStr };
+            this.state.mosaic.manualOverrides[`${c},${r}`] = { type: 'paint', color: colorStr, action: 'keep', removed: false };
           }
         }
       }
@@ -2644,7 +2644,7 @@ class App {
             cell.isRemoved = false;
             cell.sample = { r: rgb[0], g: rgb[1], b: rgb[2], a: 255 };
             cell.color = colorStr;
-            this.state.mosaic.manualOverrides[`${x0},${y0}`] = { type: 'paint', color: colorStr };
+            this.state.mosaic.manualOverrides[`${x0},${y0}`] = { type: 'paint', color: colorStr, action: 'keep', removed: false };
           }
         }
         if (x0 === x1 && y0 === y1) break;

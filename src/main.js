@@ -207,7 +207,6 @@ class App {
   initElements() {
     this.el = {
       // Containers & Shell
-      app: document.getElementById('app'),
       viewport: document.getElementById('viewport'),
       canvasContainer: document.getElementById('canvasContainer'),
       outputCanvas: document.getElementById('outputCanvas'),
@@ -445,7 +444,6 @@ class App {
       msConfirmPixelArtBtn: document.getElementById('msConfirmPixelArtBtn'),
       msOverridePhotoBtn: document.getElementById('msOverridePhotoBtn'),
       msResetAllBtn: document.getElementById('msResetAllBtn'),
-      msResetBgBtn: document.getElementById('msResetAllBtn'),
 
       panToolBtn: document.getElementById('panToolBtn'),
 
@@ -1718,13 +1716,6 @@ class App {
         this.state.mosaic.isAddingColor = true;
         this.toggleMosaicEyedropper(true);
         this.showToast('Click any color on the canvas to add it to removal list');
-      });
-    }
-
-    // Mosaic Reset Background Filters & Colors button
-    if (this.el.msResetBgBtn) {
-      this.el.msResetBgBtn.addEventListener('click', () => {
-        this.resetMosaicBgRemoval();
       });
     }
 

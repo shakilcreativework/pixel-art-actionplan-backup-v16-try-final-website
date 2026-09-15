@@ -1043,5 +1043,22 @@ A running log capturing active engineering starts, process changes, and completi
 * **Regression Result**: Zero regressions across all 7 creative engines, export pipeline, and responsive UI.
 * **Process Completed**: Task verified and marked 🟢 COMPLETED.
 
+---
 
-
+### [Log Entry 035] — Codebase Audit & Unused Code Purge
+* **Date**: September 15, 2026
+* **Status**: 🟢 COMPLETED
+* **Task**: Perform an exhaustive check across all JavaScript source files, tests, HTML templates, and CSS stylesheets to purge strictly unused code while leaving all active code, core engines, and tests 100% intact.
+* **Audit & Findings**:
+  - `src/main.js`: Identified unused element lookup `app: document.getElementById('app')`, duplicate element lookup alias `msResetBgBtn: document.getElementById('msResetAllBtn')`, and duplicate click event listener block for `msResetBgBtn`.
+  - `src/core/document/BoundaryValidator.js`: Identified unused static method `validateBounds`.
+  - All CSS selectors in `src/styles/index.css` (117 classes), exports across `src/core/` modules, and imports across all 70 JS source/test files were verified 100% active and in use.
+* **Actual Changes Made**:
+  1. Removed `app` and duplicate `msResetBgBtn` element references and redundant listener from `src/main.js`.
+  2. Removed uncalled static `validateBounds` method from `src/core/document/BoundaryValidator.js`.
+* **Verification Evidence**:
+  - Linter (`npx oxlint`): 0 errors across 70 files.
+  - Test Suite (`npx vitest run`): 19 test files passed, **142 / 142 tests passed** (2.59s).
+  - Production Build (`npm run build`): **52 modules transformed cleanly**, dist generated in 2.04s with 0 errors.
+* **Regression Result**: Zero regressions across all 7 creative engines, export pipelines, and responsive layout.
+* **Process Completed**: Task verified and marked 🟢 COMPLETED.

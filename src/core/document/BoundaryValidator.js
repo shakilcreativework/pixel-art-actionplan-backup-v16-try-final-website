@@ -5,26 +5,6 @@
 
 export class BoundaryValidator {
   /**
-   * Validate that all coordinates and bounds are completely inside [0, docWidth] x [0, docHeight].
-   */
-  static validateBounds(x, y, width, height, docWidth, docHeight) {
-    const isInside = (
-      x >= 0 &&
-      y >= 0 &&
-      (x + width) <= docWidth &&
-      (y + height) <= docHeight
-    );
-
-    return {
-      isValid: isInside,
-      overflowLeft: x < 0 ? Math.abs(x) : 0,
-      overflowTop: y < 0 ? Math.abs(y) : 0,
-      overflowRight: (x + width) > docWidth ? (x + width) - docWidth : 0,
-      overflowBottom: (y + height) > docHeight ? (y + height) - docHeight : 0
-    };
-  }
-
-  /**
    * Clamps a rectangular element to the document boundaries.
    */
   static clampRect(x, y, width, height, docWidth, docHeight) {

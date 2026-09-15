@@ -683,7 +683,6 @@
                 <div class="filter-pill-group" id="msInputModeGroup">
                   <button type="button" class="filter-pill-btn" data-input-mode="photo" id="msInputModePhotoBtn" title="Normal Image: Creative generator for photos and illustrations with shading, blending, quantization, and edge controls">📷 Normal Image</button>
                   <button type="button" class="filter-pill-btn active" data-input-mode="pixel-art" id="msInputModePixelArtBtn" title="Already Pixel Art: Pure 1:1 cell and vector conversion. Zero shading, zero blending, zero quantization, zero added edges">🎨 Already Pixel Art</button>
-                  <button type="button" class="filter-pill-btn" data-input-mode="auto" id="msInputModeAutoBtn" title="Auto-Detect: Automatically classify image as Normal Image or Already Pixel Art">⚡ Auto-Detect</button>
                 </div>
                 
                 <!-- Zero-Loss Mode Banner for Already Pixel Art -->
@@ -722,15 +721,6 @@
                       <div class="control-label-row" style="margin-bottom: 2px;"><span class="control-label" style="font-size: 10px;">Y Offset</span><span class="control-value" id="msGridOffsetYVal" style="font-size: 10px;">0 px</span></div>
                       <input type="range" id="msGridOffsetYSlider" min="0" max="15" value="0" step="1" style="width: 100%;">
                     </div>
-                  </div>
-                </div>
-
-                <!-- Detection Result Live Banner for Auto-Detect -->
-                <div id="msDetectionBanner" style="display: none; margin-top: 8px; padding: 8px 10px; border-radius: 6px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.25); font-size: 11px;">
-                  <div id="msDetectionText" style="color: var(--accent-primary); font-weight: 500;"></div>
-                  <div style="display: flex; gap: 6px; margin-top: 6px;">
-                    <button type="button" class="filter-pill-btn active" id="msConfirmPixelArtBtn" style="padding: 2px 8px; font-size: 10px;">Use Pixel Art</button>
-                    <button type="button" class="filter-pill-btn" id="msOverridePhotoBtn" style="padding: 2px 8px; font-size: 10px;">Treat as Photo</button>
                   </div>
                 </div>
                 <select id="msSourceArtTypeSelect" style="display: none;">

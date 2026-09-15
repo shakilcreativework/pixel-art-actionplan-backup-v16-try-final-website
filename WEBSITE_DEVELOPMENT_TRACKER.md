@@ -1091,3 +1091,19 @@ A running log capturing active engineering starts, process changes, and completi
 * **Regression Result**: Zero regressions across all creative engines (Halftone, Line Art, Pixel Art, Camo, etc.).
 * **Process Completed**: Task verified and marked 🟢 COMPLETED.
 
+---
+
+### [Log Entry 037] — Artwork Mode Feature Selector Simplification
+* **Date**: September 15, 2026
+* **Status**: 🟢 COMPLETED
+* **Task**: Simplify the Mosaic `Artwork Mode` -> `Select Feature Mode` sidebar selector to keep strictly `📷 Normal Image` and `🎨 Already Pixel Art` options, removing the redundant `⚡ Auto-Detect` pill button.
+* **Actual Changes Made**:
+  1. **UI Markup (`index.html`)**: Removed `#msInputModeAutoBtn` (`⚡ Auto-Detect`) from `#msInputModeGroup`, leaving strictly `📷 Normal Image` (`#msInputModePhotoBtn`) and `🎨 Already Pixel Art` (`#msInputModePixelArtBtn`).
+  2. **Application Logic (`src/main.js`)**: Updated `msInputModeButtons` click event handling to strictly toggle between `pixel-art` and `photo` feature modes cleanly with active badge synchronization (`🎨 Already Pixel Art` vs `📷 Normal Image`).
+* **Verification Evidence**:
+  - Test Suite (`npm test`): 20 test files passed, **146 / 146 tests passed** (2.53s).
+  - Production Build (`npm run build`): **52 modules transformed cleanly**, dist generated in 848ms with 0 errors.
+* **Regression Result**: Zero regressions across all creative engines, export pipeline, and responsive UI layout.
+* **Process Completed**: Task verified and marked 🟢 COMPLETED.
+
+

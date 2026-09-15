@@ -1452,7 +1452,7 @@ class App {
         this.renderCurrentEngine();
       });
     }
-    // Mosaic v2 Input Mode Selector (Auto / Pixel Art / Photo)
+    // Mosaic v2 Input Mode Selector (Normal Image vs Already Pixel Art)
     if (this.el.msInputModeButtons && this.el.msInputModeButtons.length > 0) {
       this.el.msInputModeButtons.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -1462,17 +1462,13 @@ class App {
 
           if (this.el.msSourceModeBadge) {
             if (mode === 'pixel-art') {
-              this.el.msSourceModeBadge.textContent = '🎨 Pure Pixel Art';
+              this.el.msSourceModeBadge.textContent = '🎨 Already Pixel Art';
               this.el.msSourceModeBadge.style.background = 'rgba(16, 185, 129, 0.2)';
               this.el.msSourceModeBadge.style.color = 'var(--accent-emerald)';
-            } else if (mode === 'photo') {
-              this.el.msSourceModeBadge.textContent = '📷 Photo';
+            } else {
+              this.el.msSourceModeBadge.textContent = '📷 Normal Image';
               this.el.msSourceModeBadge.style.background = 'rgba(59, 130, 246, 0.2)';
               this.el.msSourceModeBadge.style.color = 'var(--accent-primary)';
-            } else {
-              this.el.msSourceModeBadge.textContent = '⚡ Auto-Detect';
-              this.el.msSourceModeBadge.style.background = 'rgba(16, 185, 129, 0.2)';
-              this.el.msSourceModeBadge.style.color = 'var(--accent-emerald)';
             }
           }
           this.renderCurrentEngine();

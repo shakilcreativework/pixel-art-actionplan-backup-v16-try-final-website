@@ -173,6 +173,7 @@ class App {
         manualTool: null,
         protectedIds: new Set(),
         manualRemoveIds: new Set(),
+        manualRestoreIds: new Set(),
         manualOverrides: {},
         isPickingColor: false,
         isAddingColor: false,
@@ -510,7 +511,9 @@ class App {
   showToast(message, duration = 3000) {
     const toast = document.createElement('div');
     toast.className = 'toast';
-    toast.innerHTML = `<span>⚡</span> ${message}`;
+    const icon = document.createElement('span');
+    icon.textContent = '⚡';
+    toast.append(icon, document.createTextNode(` ${String(message)}`));
     this.el.toastContainer.appendChild(toast);
     setTimeout(() => {
       toast.style.opacity = '0';
@@ -1453,67 +1456,10 @@ class App {
         this.renderCurrentEngine();
       });
     }
-    // Mosaic v2 Input Mode Selector (Normal Image vs Already Pixel Art)
-    if (this.el.msInputModeButtons && this.el.msInputModeButtons.length > 0) {
-      this.el.msInputModeButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const mode = btn.getAttribute('data-input-mode');
-          this.state.mosaic.inputMode = mode;
-          this.el.msInputModeButtons.forEach(b => b.classList.toggle('active', b === btn));
-
-          if (this.el.msSourceModeBadge) {
-            if (mode === 'pixel-art') {
-              this.el.msSourceModeBadge.textContent = '🎨 Already Pixel Art';
-              this.el.msSourceModeBadge.style.background = 'rgba(16, 185, 129, 0.2)';
-              this.el.msSourceModeBadge.style.color = 'var(--accent-emerald)';
-            } else {
-              this.el.msSourceModeBadge.textContent = '📷 Normal Image';
-              this.el.msSourceModeBadge.style.background = 'rgba(59, 130, 246, 0.2)';
-              this.el.msSourceModeBadge.style.color = 'var(--accent-primary)';
-            }
-          }
-          this.renderCurrentEngine();
-        });
-      });
-    }
-
-    if (this.el.msConfirmPixelArtBtn) {
-      this.el.msConfirmPixelArtBtn.addEventListener('click', () => {
-        this.state.mosaic.inputMode = 'pixel-art';
-        this.el.msInputModeButtons?.forEach(b => b.classList.toggle('active', b.getAttribute('data-input-mode') === 'pixel-art'));
-        if (this.el.msSourceModeBadge) {
-          this.el.msSourceModeBadge.textContent = '🎨 Pure Pixel Art';
-          this.el.msSourceModeBadge.style.background = 'rgba(16, 185, 129, 0.2)';
-          this.el.msSourceModeBadge.style.color = 'var(--accent-emerald)';
-        }
-        this.renderCurrentEngine();
-      });
-    }
-
-    if (this.el.msOverridePhotoBtn) {
-      this.el.msOverridePhotoBtn.addEventListener('click', () => {
-        this.state.mosaic.inputMode = 'photo';
-        this.el.msInputModeButtons?.forEach(b => b.classList.toggle('active', b.getAttribute('data-input-mode') === 'photo'));
-        if (this.el.msSourceModeBadge) {
-          this.el.msSourceModeBadge.textContent = '📷 Photo';
-          this.el.msSourceModeBadge.style.background = 'rgba(59, 130, 246, 0.2)';
-          this.el.msSourceModeBadge.style.color = 'var(--accent-primary)';
-        }
-        this.renderCurrentEngine();
-      });
-    }
-
     if (this.el.msSourceArtTypeSelect) {
       this.el.msSourceArtTypeSelect.addEventListener('change', (e) => {
         const isPixelArt = e.target.value === 'already-pixel-art';
-        this.state.mosaic.sourceArtType = e.target.value;
-        this.state.mosaic.inputMode = isPixelArt ? 'pixel-art' : 'photo';
-        if (this.el.msSourceModeBadge) {
-          this.el.msSourceModeBadge.textContent = isPixelArt ? '🎨 Pure Pixel Art' : '📷 Photo';
-          this.el.msSourceModeBadge.style.background = isPixelArt ? 'rgba(16, 185, 129, 0.2)' : 'rgba(59, 130, 246, 0.2)';
-          this.el.msSourceModeBadge.style.color = isPixelArt ? 'var(--accent-emerald)' : 'var(--accent-primary)';
-        }
-        this.renderCurrentEngine();
+        this.setMosaicInputMode(isPixelArt ? 'pixel-art' : 'photo');
       });
     }
     if (this.el.msMosaicStrategySelect) {
@@ -2807,8 +2753,14 @@ class App {
   }
 
   setMosaicInputMode(mode, triggerRender = true) {
+    if (mode !== 'photo' && mode !== 'pixel-art') return;
+
     this.state.mosaic.inputMode = mode;
     this.state.mosaic.sourceArtType = (mode === 'photo') ? 'normal' : 'already-pixel-art';
+
+    if (this.el.msSourceArtTypeSelect) {
+      this.el.msSourceArtTypeSelect.value = this.state.mosaic.sourceArtType;
+    }
 
     this.el.msInputModeButtons?.forEach(btn => {
       btn.classList.toggle('active', btn.getAttribute('data-input-mode') === mode);
@@ -2999,7 +2951,6 @@ class App {
     this.state.mosaic.edgeTrim = 0;
     this.setMosaicBgRemovalMode('none', false);
     this.toggleMosaicEyedropper(false);
-    this.toggleMosaicPaintEyedropper(false);
 
     // 2. Reset pixel cleanup state, manual tools, and sensitivity sliders
     this.state.mosaic.manualOverrides = {};
@@ -3263,10 +3214,38 @@ class App {
     }
   }
 
+  updateDocumentDimensions(width, height) {
+    this.docManager.setCustomSize(width, height);
+    const dimensions = this.docManager.getDimensions();
+
+    this.state.docPresetKey = 'custom';
+    this.state.documentWidth = dimensions.width;
+    this.state.documentHeight = dimensions.height;
+
+    if (this.el.docPresetSelect) this.el.docPresetSelect.value = 'custom';
+    if (this.el.customSizeRow) this.el.customSizeRow.style.display = 'grid';
+    if (this.el.customWidthInput) this.el.customWidthInput.value = String(dimensions.width);
+    if (this.el.customHeightInput) this.el.customHeightInput.value = String(dimensions.height);
+
+    if (this.state.rawImage) {
+      this.updateDocumentAndCrop();
+    } else {
+      if (this.el.docDimsBadge) this.el.docDimsBadge.textContent = `${dimensions.width} × ${dimensions.height}`;
+      if (this.el.statusDocDims) this.el.statusDocDims.textContent = `${dimensions.width} × ${dimensions.height} px`;
+    }
+
+    return dimensions;
+  }
+
   applyAutoFitStock() {
     const w = this.state.documentWidth || 1024;
     const h = this.state.documentHeight || 576;
     const fit = AutoFitStockEngine.calculateStockScale(w, h);
+
+    if (fit.dimensionLimited && !fit.isCompliant) {
+      this.showToast(`Auto-Fit cannot reach 4.0 MP without exceeding the ${AutoFitStockEngine.MAX_DOCUMENT_DIMENSION}px document limit`);
+      return;
+    }
 
     if (fit.scaleMultiplier <= 1.0) {
       this.showToast(`Resolution already compliant (${fit.originalMP} MP $\\ge 4.0$ MP minimum)`);
@@ -3280,10 +3259,11 @@ class App {
     }
 
     // Apply aspect-ratio locked target dimensions to document manager
-    this.updateDocumentDimensions(fit.targetWidth, fit.targetHeight);
+    const dimensions = this.updateDocumentDimensions(fit.targetWidth, fit.targetHeight);
     this.updateStockResolutionStatus();
 
-    this.showToast(`📐 Auto-Fit Applied: Scaled to ${fit.targetWidth}×${fit.targetHeight} (${fit.targetMP} MP) — 100% aspect ratio locked!`);
+    const appliedMP = Number(((dimensions.width * dimensions.height) / 1000000).toFixed(2));
+    this.showToast(`📐 Auto-Fit Applied: Scaled to ${dimensions.width}×${dimensions.height} (${appliedMP} MP) — 100% aspect ratio locked!`);
   }
 }
 

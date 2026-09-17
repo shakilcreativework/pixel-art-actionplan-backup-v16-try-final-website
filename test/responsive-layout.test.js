@@ -5,8 +5,10 @@ import path from 'path';
 describe('Responsive Layout & Markup Audit', () => {
   const htmlPath = path.resolve(__dirname, '../index.html');
   const cssPath = path.resolve(__dirname, '../src/styles/index.css');
+  const mainPath = path.resolve(__dirname, '../src/main.js');
   const html = fs.readFileSync(htmlPath, 'utf-8');
   const css = fs.readFileSync(cssPath, 'utf-8');
+  const main = fs.readFileSync(mainPath, 'utf-8');
 
   it('includes mobile-friendly viewport meta tag', () => {
     expect(html).toContain('<meta name="viewport" content="width=device-width, initial-scale=1.0');
@@ -66,5 +68,20 @@ describe('Responsive Layout & Markup Audit', () => {
     expect(html).toContain('Remove White');
     expect(html).toContain('Remove Black');
     expect(html).toContain('Pick Color');
+  });
+
+  it('wires Auto-Fit to a concrete document-dimension update method', () => {
+    expect(main).toContain('updateDocumentDimensions(width, height)');
+    expect(main).toContain('this.docManager.setCustomSize(width, height)');
+  });
+
+  it('registers one canonical handler for each Mosaic mode confirmation control', () => {
+    expect(main.match(/msConfirmPixelArtBtn\.addEventListener/g)).toHaveLength(1);
+    expect(main.match(/msOverridePhotoBtn\.addEventListener/g)).toHaveLength(1);
+  });
+
+  it('keeps the Mosaic reset path free of stale controller calls', () => {
+    expect(main).toContain('manualRestoreIds: new Set()');
+    expect(main).not.toContain('toggleMosaicPaintEyedropper');
   });
 });

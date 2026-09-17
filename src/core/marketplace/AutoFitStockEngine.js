@@ -13,6 +13,7 @@ export class AutoFitStockEngine {
    */
   static MIN_STOCK_MEGAPIXELS = 4.0;
   static MAX_STOCK_MEGAPIXELS = 100.0;
+  static MAX_DOCUMENT_DIMENSION = 8192;
 
   /**
    * Calculate uniform aspect-ratio locked scale factor for target megapixels.
@@ -32,12 +33,21 @@ export class AutoFitStockEngine {
     const targetPixels = targetMinMP * 1000000;
 
     let scaleMultiplier = 1.0;
+    let dimensionLimited = false;
 
     if (currentPixels < targetPixels) {
       // Calculate uniform scale multiplier to hit or exceed target megapixels
       const exactMultiplier = Math.sqrt(targetPixels / currentPixels);
       // Round up slightly to guarantee hitting targetMinMP threshold cleanly
       scaleMultiplier = Number((Math.ceil(exactMultiplier * 100) / 100).toFixed(2));
+    }
+
+    // Respect the document limit without independently clamping width/height,
+    // which would distort very wide or tall artwork.
+    const maxDimensionScale = AutoFitStockEngine.MAX_DOCUMENT_DIMENSION / Math.max(w, h);
+    if (scaleMultiplier > 1 && maxDimensionScale < scaleMultiplier) {
+      scaleMultiplier = maxDimensionScale;
+      dimensionLimited = true;
     }
 
     const targetWidth = Math.round(w * scaleMultiplier);
@@ -58,7 +68,8 @@ export class AutoFitStockEngine {
       aspectRatio,
       aspectRatioFormatted: `${w}:${h}`,
       isCompliant,
-      zeroCropGuaranteed: true
+      zeroCropGuaranteed: true,
+      dimensionLimited
     };
   }
 

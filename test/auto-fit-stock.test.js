@@ -53,6 +53,25 @@ describe('Intelligent Auto-Fit Stock Engine — Aspect Ratio & Zero Crop Tests',
     expect(res.scaleMultiplier).toBe(2.0); // 2000x2000 = 4.0 MP
   });
 
+  it('should preserve aspect ratio when the 8192px document limit prevents compliance', () => {
+    const res = AutoFitStockEngine.calculateStockScale(8192, 16, 4.0);
+
+    expect(res.targetWidth).toBe(8192);
+    expect(res.targetHeight).toBe(16);
+    expect(res.dimensionLimited).toBe(true);
+    expect(res.isCompliant).toBe(false);
+    expect(res.targetWidth / res.targetHeight).toBe(8192 / 16);
+  });
+
+  it('should not downscale an already-compliant source passed directly to the engine', () => {
+    const res = AutoFitStockEngine.calculateStockScale(10000, 1000, 4.0);
+
+    expect(res.scaleMultiplier).toBe(1);
+    expect(res.targetWidth).toBe(10000);
+    expect(res.targetHeight).toBe(1000);
+    expect(res.dimensionLimited).toBe(false);
+  });
+
   it('should provide comprehensive audit report data via getAuditReport', () => {
     const report = AutoFitStockEngine.getAuditReport({ width: 1280, height: 720 });
 

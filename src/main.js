@@ -367,11 +367,6 @@ class App {
       msQuadtreeVarSlider: document.getElementById('msQuadtreeVarSlider'),
       msQuadtreeVarVal: document.getElementById('msQuadtreeVarVal'),
       msResamplerScaleSelect: document.getElementById('msResamplerScaleSelect'),
-      msCtrlContrastEdge: document.getElementById('msCtrlContrastEdge'),
-      msContrastEdgeSensSlider: document.getElementById('msContrastEdgeSensSlider'),
-      msContrastEdgeSensVal: document.getElementById('msContrastEdgeSensVal'),
-      msContrastEdgeSharpSlider: document.getElementById('msContrastEdgeSharpSlider'),
-      msContrastEdgeSharpVal: document.getElementById('msContrastEdgeSharpVal'),
       msIsolineBandsSlider: document.getElementById('msIsolineBandsSlider'),
       msIsolineBandsVal: document.getElementById('msIsolineBandsVal'),
       msSourceModeBadge: document.getElementById('msSourceModeBadge'),
@@ -1440,15 +1435,13 @@ class App {
     }
     if (this.el.msMosaicStrategySelect) {
       const descriptions = {
-        'default-pixel-art': 'Existing default Pixel Art Mosaic processing.',
-        'contrast-edge': 'Best for silhouettes, mountain ridges, and high-contrast boundaries to prevent edge bleeding.'
+        'default-pixel-art': 'Existing default Pixel Art Mosaic processing.'
       };
       const updateStrategyUI = (val) => {
         if (!this.el.msStrategyControls) return;
         const isDefault = val === 'default-pixel-art';
         this.el.msStrategyControls.style.display = isDefault ? 'none' : 'block';
 
-        if (this.el.msCtrlContrastEdge) this.el.msCtrlContrastEdge.style.display = val === 'contrast-edge' ? 'block' : 'none';
       };
 
       this.el.msMosaicStrategySelect.addEventListener('change', (e) => {
@@ -1503,22 +1496,6 @@ class App {
       if (this.el.msResamplerScaleSelect) {
         this.el.msResamplerScaleSelect.addEventListener('change', (e) => {
           this.state.mosaic.targetScale = e.target.value;
-          this.renderCurrentEngine();
-        });
-      }
-      if (this.el.msContrastEdgeSensSlider) {
-        this.el.msContrastEdgeSensSlider.addEventListener('input', (e) => {
-          const val = parseInt(e.target.value, 10);
-          this.state.mosaic.edgeSensitivity = val;
-          if (this.el.msContrastEdgeSensVal) this.el.msContrastEdgeSensVal.textContent = `${val}%`;
-          this.renderCurrentEngine();
-        });
-      }
-      if (this.el.msContrastEdgeSharpSlider) {
-        this.el.msContrastEdgeSharpSlider.addEventListener('input', (e) => {
-          const val = parseInt(e.target.value, 10) / 10;
-          this.state.mosaic.ridgeSharpness = val;
-          if (this.el.msContrastEdgeSharpVal) this.el.msContrastEdgeSharpVal.textContent = `${val.toFixed(1)}x`;
           this.renderCurrentEngine();
         });
       }

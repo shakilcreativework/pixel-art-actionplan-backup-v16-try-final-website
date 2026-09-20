@@ -2,7 +2,7 @@
 
 **Last updated:** September 20, 2026
 
-**Latest activity:** Markdown audit and obsolete-documentation cleanup.
+**Latest activity:** Normal Image strategy selector simplified to Default Pixel Art only.
 
 ## Current project references
 
@@ -30,7 +30,7 @@ These results are from the September 20 code-cleanup task, before this documenta
 
 - Pixel Art has an independent fixed-grid engine and a dedicated Web Worker.
 - Mosaic defaults to Normal Image; Already Pixel Art selects a separate sampling pathway.
-- The Normal Image strategy selector offers Default Pixel Art and Contrast-Aware Ridge & Silhouette. Other strategy engines remain in the source and tests.
+- The Normal Image strategy selector offers only Default Pixel Art. Other strategy engines remain in the source and tests.
 - SVG application branches exist for Pixel Art, Halftone, Random Flow, and Mosaic.
 - Project files store PixelGrid data and settings, not the source image, zoom/pan, or edit history.
 - Pencil mode retains rendering and undo/clear controls; creation of strokes, shapes, and text is not wired to input handlers.
@@ -885,3 +885,10 @@ Duplicate entries have been consolidated by title, retaining the more complete c
 * **Preserved**: All seven documents still describe this project; no whole document needed deletion. Unique historical records remain explicitly labeled as history.
 * **Verification**: Checked local Markdown links and file references, and compared SHA-256 hashes for tracked non-Markdown files against the start of this task. No application, test, configuration, or feature changes were made in this pass.
 * **Tests/build**: Not rerun for documentation-only edits; the latest executed results remain those recorded above.
+
+### [Log Entry 044] — Normal Image Strategy Option Removal
+
+* **Date**: September 20, 2026.
+* **Changes**: Removed Contrast-Aware Ridge & Silhouette from the Normal Image dropdown, its Edge Sensitivity and Ridge Sharpness controls, and their DOM lookups and listeners. Default Pixel Art remains selected.
+* **Scope**: UI removal only. Processing engines, saved-project support, Already Pixel Art, and other controls remain unchanged.
+* **Verification**: Dropdown/reference checks passed; 152/152 tests passed across 21 files; production build succeeded with 52 modules.

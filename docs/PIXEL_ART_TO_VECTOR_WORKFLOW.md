@@ -22,7 +22,7 @@ The engine is [PixelArtEngine.js](../src/core/pixel-art/PixelArtEngine.js); SVG 
 
 ## Mosaic — Normal Image
 
-Choose Normal Image for photographic or continuous-tone input. The visible strategies are Default Pixel Art and Contrast-Aware Ridge & Silhouette.
+Choose Normal Image for photographic or continuous-tone input. The only visible strategy is Default Pixel Art.
 
 Set tile size, shape, spacing, rotation, sampling, palette, and dithering as needed. Background removal defaults to None (Keep All). White, black, and picked-color removal are optional.
 

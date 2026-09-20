@@ -34,7 +34,7 @@ Only Pixel Art is processed through a dedicated Web Worker. Other engines run sy
 
 ## Source File Map
 
-Every file listed below exists in the repository as of September 20, 2026. The Mosaic UI offers Normal Image and Already Pixel Art; Normal Image exposes Default Pixel Art and Contrast-Aware Ridge & Silhouette. Other strategy modules remain available internally and in tests.
+Every file listed below exists in the repository as of September 20, 2026. The Mosaic UI offers Normal Image and Already Pixel Art; Normal Image exposes only Default Pixel Art. Other strategy modules remain available internally and in tests.
 
 ### `src/`
 

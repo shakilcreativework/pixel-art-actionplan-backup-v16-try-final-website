@@ -718,7 +718,6 @@
                 <div class="control-label-row"><span class="control-label">Mosaic Strategy</span></div>
                 <select id="msMosaicStrategySelect">
                   <option value="default-pixel-art" selected>Default Pixel Art</option>
-                  <option value="contrast-edge">Contrast-Aware Ridge & Silhouette</option>
                 </select>
                 <div id="msStrategyDesc" style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
                   Existing default Pixel Art Mosaic processing.
@@ -787,20 +786,6 @@
                       <option value="16">16 × Scale (16px)</option>
                     </select>
                     <div id="msResamplerDetectedBadge" style="font-size: 11px; margin-top: 6px; color: var(--accent-primary);"></div>
-                  </div>
-
-                  <!-- Contrast-Aware Ridge & Silhouette Controls -->
-                  <div id="msCtrlContrastEdge" style="display: none;">
-                    <div class="control-label-row">
-                      <span class="control-label">Edge Sensitivity</span>
-                      <span class="control-value" id="msContrastEdgeSensVal">25%</span>
-                    </div>
-                    <input type="range" id="msContrastEdgeSensSlider" min="5" max="80" value="25" style="width: 100%;">
-                    <div class="control-label-row" style="margin-top: 8px;">
-                      <span class="control-label">Ridge Sharpness</span>
-                      <span class="control-value" id="msContrastEdgeSharpVal">1.5x</span>
-                    </div>
-                    <input type="range" id="msContrastEdgeSharpSlider" min="10" max="30" value="15" step="1" style="width: 100%;">
                   </div>
 
                   <!-- Perceptual Isoline Banded Controls -->

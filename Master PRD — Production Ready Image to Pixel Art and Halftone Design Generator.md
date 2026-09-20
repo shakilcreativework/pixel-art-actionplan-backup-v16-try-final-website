@@ -42,7 +42,7 @@ Original-color mode preserves sampled colors without palette reduction; sampling
 
 The sidebar offers **Normal Image** (default) and **Already Pixel Art**.
 
-Normal Image exposes two strategy choices: Default Pixel Art and Contrast-Aware Ridge & Silhouette. Already Pixel Art uses a separate sampling pathway that bypasses continuous shading, palette quantization, and dithering. Background removal is optional.
+Normal Image exposes only Default Pixel Art. Already Pixel Art uses a separate sampling pathway that bypasses continuous shading, palette quantization, and dithering. Background removal is optional.
 
 See [Mosaic dual-input reference](docs/Mosaic_Engine_PRD_v2_Dual_Input_System.md) for the implemented pathways, options, and preservation limits.
 

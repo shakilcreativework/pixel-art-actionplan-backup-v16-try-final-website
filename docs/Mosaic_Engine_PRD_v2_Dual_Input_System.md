@@ -41,12 +41,11 @@ Classification runs when `inputMode === 'auto'` or `detectInput` is requested. E
 
 The default pipeline uses [ContinuousShading.js](../src/core/mosaic/ContinuousShading.js), [ContourTracer.js](../src/core/mosaic/ContourTracer.js), [BackgroundClassifier.js](../src/core/mosaic/BackgroundClassifier.js), [BackgroundRemover.js](../src/core/mosaic/BackgroundRemover.js), and [PostQualityPass.js](../src/core/mosaic/PostQualityPass.js), with additional trim, topology, cleanup, and verification stages.
 
-The visible strategy dropdown contains:
+The visible strategy dropdown contains only:
 
 - `default-pixel-art` — Default Pixel Art.
-- `contrast-edge` — Contrast-Aware Ridge & Silhouette.
 
-The engine still supports island-grid, orthogonal-contour, adaptive-quadtree, integer-resample, isoline-banded, and auto-detect strategy values. Their modules and tests exist; they are not current dropdown choices.
+The engine still supports contrast-edge, island-grid, orthogonal-contour, adaptive-quadtree, integer-resample, isoline-banded, and auto-detect strategy values. Their modules and tests exist; they are not current dropdown choices.
 
 ## 5. Pathway B — Already Pixel Art
 

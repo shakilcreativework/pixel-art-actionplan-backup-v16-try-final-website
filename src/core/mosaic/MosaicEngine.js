@@ -19,6 +19,7 @@
  */
 
 import { sampleContinuousShading } from './ContinuousShading.js';
+import { CleanEdgePurifier } from './CleanEdgePurifier.js';
 import { ContourTracer } from './ContourTracer.js';
 import { CellModel, CellDesignState } from './CellModel.js';
 import { TopologyGuard } from './TopologyGuard.js';
@@ -334,6 +335,7 @@ export class MosaicEngine {
       }
     }
 
+    let edgePurifierReport = null;
     // STAGE 1A: Clean Edge Anti-Aliasing Purifier for Already Pixel Art
     if (sourceArtType === 'already-pixel-art' && cleanEdgePurifier && cleanEdgeScope !== 'off') {
       MosaicEngine.purifyCleanEdges(grid, {
@@ -341,6 +343,8 @@ export class MosaicEngine {
         distCeiling: Math.max(distCeiling, 35),
         scope: cleanEdgeScope
       });
+    } else if (cleanEdgePurifier && cleanEdgeScope !== 'off' && mosaicStrategy === 'default-pixel-art') {
+      edgePurifierReport = CleanEdgePurifier.apply(grid, sourceImage, options);
     }
 
     // =========================================================================
@@ -598,6 +602,7 @@ export class MosaicEngine {
       integrityReport,
       verificationReport,
       cleanupResult,
+      edgePurifierReport,
       trimResult,
       strategyResult,
       strategyRecommendation,

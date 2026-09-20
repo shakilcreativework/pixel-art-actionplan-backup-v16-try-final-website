@@ -2,7 +2,7 @@
 
 **Last updated:** September 20, 2026
 
-**Latest activity:** Normal Image strategy selector simplified to Default Pixel Art only.
+**Latest activity:** Optional Clean Edge Purifier added to Mosaic Normal Image.
 
 ## Current project references
 
@@ -17,13 +17,13 @@
 
 ## Latest executed checks
 
-These results are from the September 20 code-cleanup task, before this documentation-only pass.
+These results are from the September 20 Clean Edge Purifier implementation.
 
 | Check | Result |
 |---|---|
-| Automated tests | **152/152 passed** across 21 files |
-| Production build | Succeeded; **52 modules** transformed |
-| Targeted ESLint checks | **73 JavaScript files**, zero findings for unused variables, unreachable code, and constant conditions |
+| Automated tests | **159/159 passed** across 22 files |
+| Production build | Succeeded; **53 modules** transformed |
+| Targeted ESLint checks | Four changed/new JavaScript files; zero unused-variable or unreachable-code findings |
 | Interactive browser verification | Not performed in this session |
 
 ## Current implementation notes

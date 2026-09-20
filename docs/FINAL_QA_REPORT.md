@@ -1,15 +1,14 @@
 # QA & Verification Report
 
-Latest executed verification: September 20, 2026, after the unused-code cleanup.
-This Markdown-only review did not rerun tests or builds.
+Latest executed verification: September 20, 2026, after Clean Edge Purifier implementation.
 
 ## Recorded results
 
 | Check | Result |
 |---|---|
-| `npm test` | 21 test files passed; 152/152 tests passed |
-| `npm run build` | Succeeded; 52 modules transformed |
-| Targeted ESLint audit | 73 JavaScript files; no unused-variable, unreachable-code, or constant-condition findings |
+| `npm test` | 22 test files passed; 159/159 tests passed |
+| `npm run build` | Succeeded; 53 modules transformed |
+| Targeted ESLint audit | Four changed/new JavaScript files; no unused-variable or unreachable-code findings |
 | Browser interaction, visual checks, performance, accessibility | Not executed in this session |
 
 The ESLint audit used an in-memory configuration. There is no committed lint script or scratch configuration to invoke.
@@ -39,7 +38,8 @@ The ESLint audit used an in-memory configuration. There is no committed lint scr
 | Mosaic Quality Verification Toggle | `test/mosaic-quality-verification-toggle.test.js` | 3 | 🟢 PASS |
 | Mosaic Pixel Differential | `test/mosaic-pixel-diff.test.js` | 2 | 🟢 PASS |
 | Mosaic Manual Paint Overrides | `test/mosaic-manual-paint-overrides.test.js` | 1 | 🟢 PASS |
-| **Total** | | **152 / 152** | **🟢 100%** |
+| Clean Edge Purifier | `test/mosaic-clean-edge-purifier.test.js` | 7 | 🟢 PASS |
+| **Total** | | **159 / 159** | **🟢 100%** |
 
 ## Coverage and limits
 

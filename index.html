@@ -915,6 +915,25 @@
             </section>
 
 
+            <section class="sidebar-section" id="msCleanEdgeSection">
+              <div class="section-header">
+                <span class="section-title">Clean Edge Purifier</span>
+                <span class="section-badge" id="msCleanEdgeStatus" aria-live="polite">Off</span>
+              </div>
+              <div class="toggle-preset-box">
+                <div class="toggle-preset-info">
+                  <span class="toggle-preset-title">Restore Design Edge Colors</span>
+                  <span class="toggle-preset-subtitle">Replace muddy edge blends with nearby source colors.</span>
+                </div>
+                <label class="switch-toggle" title="Restore edge colors on a flat background without changing tile shapes">
+                  <input type="checkbox" id="msCleanEdgeToggle" aria-label="Enable Clean Edge Purifier">
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+              <p class="control-hint" style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">Best for flat backgrounds. Keeps interior shading and manual edits. Palette and dithering settings still apply.</p>
+              <button type="button" class="btn" id="msCleanEdgeResetBtn" style="width: 100%; margin-top: 8px;" disabled>Reset Edge Colors</button>
+            </section>
+
             <!-- Dedicated Mosaic Trim Section (Illustrator-Inspired Cell-Level Trim) -->
             <section class="sidebar-section" id="msTrimSection">
               <div class="section-header">

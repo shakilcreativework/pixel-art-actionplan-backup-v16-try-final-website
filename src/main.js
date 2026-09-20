@@ -353,6 +353,10 @@ class App {
       msSamplingGroup: document.getElementById('msSamplingGroup'),
       msColorPaletteSection: document.getElementById('msColorPaletteSection'),
       msTrimSection: document.getElementById('msTrimSection'),
+      msCleanEdgeSection: document.getElementById('msCleanEdgeSection'),
+      msCleanEdgeToggle: document.getElementById('msCleanEdgeToggle'),
+      msCleanEdgeStatus: document.getElementById('msCleanEdgeStatus'),
+      msCleanEdgeResetBtn: document.getElementById('msCleanEdgeResetBtn'),
       msMosaicStrategySelect: document.getElementById('msMosaicStrategySelect'),
       msStrategyDesc: document.getElementById('msStrategyDesc'),
       msStrategyRecBadge: document.getElementById('msStrategyRecBadge'),
@@ -835,6 +839,13 @@ class App {
       this.renderMosaicDocColors();
       this.renderMosaicActivePaletteSwatches();
       this.updateMosaicVerificationUI(res.verificationReport);
+      if (this.el.msCleanEdgeStatus) {
+        const report = res.edgePurifierReport;
+        this.el.msCleanEdgeStatus.textContent = !this.state.mosaic.cleanEdgePurifier ? 'Off'
+          : !report ? 'Not applied'
+          : !report.backgroundDetected ? 'No flat background'
+          : `${report.correctedCells} restored`;
+      }
 
       this.updateMosaicModeUI(this.state.mosaic.inputMode, res.pathway);
 
@@ -1526,6 +1537,13 @@ class App {
         this.renderCurrentEngine();
       });
     }
+
+    this.el.msCleanEdgeToggle?.addEventListener('change', (e) => {
+      this.setMosaicCleanEdgePurifier(e.target.checked);
+    });
+    this.el.msCleanEdgeResetBtn?.addEventListener('click', () => {
+      this.setMosaicCleanEdgePurifier(false);
+    });
 
     // Mosaic Trim Controls
     if (this.el.msTrimToggle) {
@@ -2724,6 +2742,10 @@ class App {
   updateMosaicModeUI(inputMode, activePathway) {
     const isPixelArt = activePathway === 'pixel-art' || (inputMode === 'pixel-art');
 
+    if (this.el.msCleanEdgeSection) this.el.msCleanEdgeSection.style.display = isPixelArt ? 'none' : '';
+    if (this.el.msCleanEdgeToggle) this.el.msCleanEdgeToggle.checked = !!this.state.mosaic.cleanEdgePurifier;
+    if (this.el.msCleanEdgeResetBtn) this.el.msCleanEdgeResetBtn.disabled = !this.state.mosaic.cleanEdgePurifier;
+
     if (this.el.msZeroLossBanner) {
       this.el.msZeroLossBanner.style.display = isPixelArt ? 'block' : 'none';
     }
@@ -2844,6 +2866,14 @@ class App {
 
 
 
+  setMosaicCleanEdgePurifier(enabled) {
+    this.state.mosaic.cleanEdgePurifier = enabled;
+    this.state.mosaic.cleanEdgeScope = enabled ? 'outer' : 'off';
+    this.updateMosaicModeUI(this.state.mosaic.inputMode, this.state.mosaic.inputMode);
+    if (this.el.msCleanEdgeStatus) this.el.msCleanEdgeStatus.textContent = enabled ? 'Ready' : 'Off';
+    this.renderCurrentEngine();
+  }
+
   triggerAutoClean() {
     this.state.mosaic.cleanupEnabled = true;
     this.state.mosaic.autoClean = true;
@@ -2888,6 +2918,8 @@ class App {
     this.state.mosaic.restoreEdgeColors = false;
     this.state.mosaic.deFringe = false;
     this.state.mosaic.edgeTrim = 0;
+    this.state.mosaic.cleanEdgePurifier = false;
+    this.state.mosaic.cleanEdgeScope = 'off';
     this.setMosaicBgRemovalMode('none', false);
     this.toggleMosaicEyedropper(false);
 

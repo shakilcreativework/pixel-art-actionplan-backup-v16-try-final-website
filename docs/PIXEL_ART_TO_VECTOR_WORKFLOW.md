@@ -28,6 +28,10 @@ Set tile size, shape, spacing, rotation, sampling, palette, and dithering as nee
 
 ## Mosaic — Already Pixel Art
 
+Before Mosaic Trim, Normal Image also provides **Clean Edge Purifier**. Enable it to replace likely flat-background blends along the exterior edge with nearby colors from the source image. It starts off; **Reset Edge Colors** disables it and regenerates the normal result without clearing manual edits. Palette and dithering settings still apply afterward. The purifier skips transparent or non-flat source backgrounds where it cannot infer a reliable background color.
+
+## Mosaic — Already Pixel Art
+
 Choose Already Pixel Art for existing pixel artwork. Set tile size to match the source grid. This pathway bypasses continuous shading, palette quantization, dithering, and morphological trim.
 
 For source-like geometry, use square tiles, zero spacing, and zero rotation. Keep background removal off unless removal is intended, and review enabled cleanup settings.

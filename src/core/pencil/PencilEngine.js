@@ -17,45 +17,6 @@ export class PencilEngine {
     this.height = height;
   }
 
-  addStroke(points, color = '#ff0055', size = 3) {
-    if (!points || points.length === 0) return;
-    this.saveState();
-    this.elements.push({
-      type: 'stroke',
-      points: [...points],
-      color,
-      size
-    });
-  }
-
-  addShape(shapeType, x0, y0, x1, y1, color = '#ff0055', size = 3, filled = false) {
-    this.saveState();
-    this.elements.push({
-      type: 'shape',
-      shapeType, // 'rect', 'circle', 'arrow', 'line'
-      x0,
-      y0,
-      x1,
-      y1,
-      color,
-      size,
-      filled
-    });
-  }
-
-  addText(text, x, y, color = '#ffffff', fontSize = 20) {
-    if (!text) return;
-    this.saveState();
-    this.elements.push({
-      type: 'text',
-      text,
-      x,
-      y,
-      color,
-      fontSize
-    });
-  }
-
   saveState() {
     this.history.push(JSON.parse(JSON.stringify(this.elements)));
     if (this.history.length > 30) this.history.shift();

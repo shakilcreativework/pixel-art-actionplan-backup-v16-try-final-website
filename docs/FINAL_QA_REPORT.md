@@ -1,50 +1,20 @@
-# Final QA & Verification Report
+# QA & Verification Report
 
-> **Test Run**: `npx vitest run` — 147 / 147 ✅  
-> **Production Build**: `npx vite build` — 52 modules, 0 errors ✅
+Latest executed verification: September 20, 2026, after the unused-code cleanup.
+This Markdown-only review did not rerun tests or builds.
 
----
+## Recorded results
 
-## Feature Verification
+| Check | Result |
+|---|---|
+| `npm test` | 21 test files passed; 152/152 tests passed |
+| `npm run build` | Succeeded; 52 modules transformed |
+| Targeted ESLint audit | 73 JavaScript files; no unused-variable, unreachable-code, or constant-condition findings |
+| Browser interaction, visual checks, performance, accessibility | Not executed in this session |
 
-| Feature / Engine | Status | Result |
-|---|---|---|
-| Pixel Art Engine — Independent pipeline | ✅ Complete | Isolated from all other engines; fixed grid; typed array storage |
-| Pixel Art — Fixed grid (uniform cell dimensions) | ✅ Complete | Luminance affects color only, never cell geometry |
-| Pixel Art — OKLab perceptual color sampling | ✅ Complete | Average, median, dominant modes; sRGB→Linear→OKLab pipeline |
-| Pixel Art — Median-Cut Palette Quantization | ✅ Complete | Auto-quantize (2–256 colors); 10 presets: PICO-8, Game Boy, Monochrome, C64, Cyberpunk Neon, Pastel Dreams, Solar 8, EDG 32, NES Classic, Lego Studs |
-| Pixel Art — Dithering pipeline | ✅ Complete | Bayer 2×2/4×4/8×8, Floyd-Steinberg, Atkinson, Random |
-| Pixel Art — In-browser pixel editor | ✅ Complete | Pencil, Eraser, Flood Fill (BFS), Eyedropper, Rectangle, Line |
-| Pixel Art — Undo / Redo | ✅ Complete | Full history stack; Ctrl+Z / Ctrl+Shift+Z / Ctrl+Y |
-| Pixel Art — Web Worker off-thread processing | ✅ Complete | UI remains responsive at 60 fps during heavy computation |
-| True Vector SVG export | ✅ Complete | 4 modes: editable / optimized / grouped / objects; Halftone + Random Flow + Mosaic SVG also supported |
-| Crisp PNG export | ✅ Complete | Nearest-neighbor upscaling — 1×, 2×, 4×, 8×, custom |
-| Project save / load (`.pixelart`) | ✅ Complete | Grid, palette, settings, zoom restored on reopen |
-| Halftone Engine | ✅ Complete | Square / Hex / Radial grids; Circle / Square / Diamond / Ellipse / Triangle / Cross dots; decoupled from Pixel Art |
-| Line Art Engine | ✅ Complete | Sobel edge detection, sensitivity, inversion; decoupled |
-| Random Flow Engine | ✅ Complete | Perlin noise particle streamlines; decoupled |
-| Camo Mesh Engine | ✅ Complete | Voronoi cellular patches; decoupled |
-| Mosaic Engine — 5-Stage architecture | ✅ Complete | ContinuousShading → ContourTracer → BackgroundClassifier → BackgroundRemover → PostQualityPass |
-| Mosaic — Multi-Strategy Vectorization System | ✅ Complete | 6 strategies: Default Pixel Art, Island Grid, Orthogonal Contour, Adaptive Quadtree, Integer Resample, Auto Detect |
-| Mosaic — 100% Pixel Cleanup & Quality Verification Engine | ✅ Complete | Non-destructive cleanup pipeline + machine-checkable 100% verification gate |
-| Mosaic — Edge Intelligence & Individual Design Boundary Verification | ✅ Complete | 8-connected design object detector + 4-side perimeter contour analyzer |
-| Mosaic — Boundary Edge Fringe Purifier & Solid Outline Preservation | ✅ Complete | Transition fringe purging with solid black outline protection |
-| Mosaic — Background removal (flood fill) | ✅ Complete | Perimeter-seeded BFS; Outer Edge (Safe) and Everywhere (Global) scopes |
-| Mosaic — Edge quality passes | ✅ Complete | De-fade, de-fringe, corner harmonization, outline snapping |
-| Mosaic — QA diagnostic overlay | ✅ Complete | 1-click inspection grid; magenta mismatch highlights |
-| Intelligent Auto-Fit Stock Engine | ✅ Complete | Aspect-ratio locked zero-crop scaling to guarantee ≥ 4.0 MP microstock threshold |
-| Pencil & Annotation Engine | ✅ Complete | Freehand strokes, shapes, text, size, color; decoupled |
-| Document & Artboard system | ✅ Complete | Landscape / Portrait / Square / Social / AI ratios / Custom; transparent & solid background |
-| Marketplace Safe Check | ✅ Complete | Boundary + transparency compliance validator |
-| Zoom — Cursor-anchored mouse wheel | ✅ Complete | Zoom anchors to cursor position |
-| Pan — Right-click drag / Middle-mouse / Space+drag | ✅ Complete | All 4 directions; context menu suppressed |
-| Touch — Pinch-to-zoom + 2-finger pan | ✅ Complete | `touch-action: none`; no accidental page scroll |
-| Responsive layout | ✅ Complete | Desktop (≥1440), Compact desktop (1200–1439), Tablet (768–1199), Mobile (<768); off-canvas drawer |
-| Production build | ✅ Complete | Vite 5.4; 52 modules; 0 errors; 0 warnings |
+The ESLint audit used an in-memory configuration. There is no committed lint script or scratch configuration to invoke.
 
----
-
-## Automated Test Suite
+## Automated test suite
 
 | Suite | File | Tests | Status |
 |---|---|:---:|:---:|
@@ -55,32 +25,31 @@
 | Mosaic Pixel-Perfect Preservation | `test/mosaic-pixel-perfect-preservation.test.js` | 12 | 🟢 PASS |
 | Mosaic Trim | `test/mosaic-trim.test.js` | 10 | 🟢 PASS |
 | Document & Background | `test/document-and-background.test.js` | 13 | 🟢 PASS |
-| Responsive Layout & DOM | `test/responsive-layout.test.js` | 8 | 🟢 PASS |
+| Responsive Layout & DOM | `test/responsive-layout.test.js` | 11 | 🟢 PASS |
 | Document Color Extractor | `test/document-color-extractor.test.js` | 3 | 🟢 PASS |
 | Mosaic Cleanup Verification | `test/mosaic-cleanup-verification.test.js` | 5 | 🟢 PASS |
 | Mosaic Edge Intelligence | `test/mosaic-edge-intelligence.test.js` | 5 | 🟢 PASS |
 | Clean Edge Purifier | `test/clean-edge-purifier-preservation.test.js` | 2 | 🟢 PASS |
 | Document Color Controls | `test/document-color-controls.test.js` | 5 | 🟢 PASS |
 | Boundary Fringe Purifier | `test/mosaic-boundary-fringe-purifier.test.js` | 1 | 🟢 PASS |
-| Auto-Fit Stock Engine | `test/auto-fit-stock.test.js` | 6 | 🟢 PASS |
+| Auto-Fit Stock Engine | `test/auto-fit-stock.test.js` | 8 | 🟢 PASS |
 | Mosaic Multi-Strategy System | `test/mosaic-multi-strategy.test.js` | 6 | 🟢 PASS |
 | Mosaic Strategies & Sampling | `test/mosaic-strategies-and-sampling.test.js` | 12 | 🟢 PASS |
 | Mosaic v2 Pure Pixel Pipeline | `test/mosaic-v2-pure-pixel-pipeline.test.js` | 13 | 🟢 PASS |
 | Mosaic Quality Verification Toggle | `test/mosaic-quality-verification-toggle.test.js` | 3 | 🟢 PASS |
 | Mosaic Pixel Differential | `test/mosaic-pixel-diff.test.js` | 2 | 🟢 PASS |
 | Mosaic Manual Paint Overrides | `test/mosaic-manual-paint-overrides.test.js` | 1 | 🟢 PASS |
-| **Total** | | **147 / 147** | **🟢 100%** |
+| **Total** | | **152 / 152** | **🟢 100%** |
 
----
+## Coverage and limits
 
-## Release Gate
+The tests exercise Pixel Art processing, document sizing, Mosaic pathways and strategies, background removal, preservation fixtures, cleanup, verification toggles, paint overrides, and markup checks.
 
-```
-Critical Issues  = 0  ✅
-High Issues      = 0  ✅
-Build Errors     = 0  ✅
-Console Errors   = 0  ✅
-All Tests        = PASS ✅
-```
+- Responsive-layout tests inspect source and markup; they are not interactive viewport tests.
+- Pixel-difference tests cover their fixtures, not all possible image inputs.
+- A successful build does not establish zero browser-console errors, 60 fps performance, or release approval.
+- The current SVG handler supports Pixel Art, Halftone, Random Flow, and Mosaic. Other modes have no dedicated SVG export branch.
+- Pencil-mode rendering and undo/clear controls exist, but stroke, shape, and text creation are not wired to current application input handlers.
+- Project files store settings and PixelGrid data; they do not restore an original source image, zoom/pan, or undo history.
 
-**Status: ✅ APPROVED**
+See [Architecture](ARCHITECTURE.md), [SVG export](SVG_EXPORT.md), and the [development tracker](../WEBSITE_DEVELOPMENT_TRACKER.md) for implementation references and historical records.

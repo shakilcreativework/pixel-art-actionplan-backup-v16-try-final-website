@@ -1,221 +1,49 @@
-# Pixel Studio & Vector Creative Suite — Development & Implementation Tracker
+# Pixel Studio & Vector Creative Suite — Development Tracker
 
-> **Tracker Status**: Active Synchronization  
-> **Last Logged Activity**: Mosaic Manual Paint Overrides Persistence & Toolbar Eraser Bug Fix (147/147 Passing)  
-> **Overall Progress**: 🟢 100% Complete | Core & Extension Features Fully Implemented  
+**Last updated:** September 20, 2026
 
----
+**Latest activity:** Markdown audit and obsolete-documentation cleanup.
 
-## 📊 Status Dashboard
+## Current project references
 
-| Metric | Status | Details |
-|---|:---:|---|
-| **Core Suite** | 🟢 100% | All 7 creative design engines + Mosaic v2 Dual-Input Pipeline |
-| **Test Suite** | 🟢 100% | **147 / 147 tests passing** across 21 test files (`npm test` / `vitest`) |
-| **ESLint Validation** | 🟢 100% | Clean — 0 errors, 0 warnings across all source and test files |
-| **Production Build** | 🟢 100% | Clean bundle — **52 modules**, 0 errors (`npm run build`) |
-| **Last Updated** | 🟢 Current | September 15, 2026 |
+| Area | Reference |
+|---|---|
+| Product scope and maintenance rules | [Master PRD](<Master PRD — Production Ready Image to Pixel Art and Halftone Design Generator.md>) |
+| Existing modules and architecture | [Architecture](docs/ARCHITECTURE.md) |
+| Mosaic pathways and current controls | [Mosaic dual-input reference](docs/Mosaic_Engine_PRD_v2_Dual_Input_System.md) |
+| Conversion workflow | [Pixel Art and Mosaic workflow](docs/PIXEL_ART_TO_VECTOR_WORKFLOW.md) |
+| SVG methods and supported modes | [SVG export](docs/SVG_EXPORT.md) |
+| Executed verification and limits | [QA report](docs/FINAL_QA_REPORT.md) |
 
----
+## Latest executed checks
 
-## 🎨 Legend & Tracker Protocol
+These results are from the September 20 code-cleanup task, before this documentation-only pass.
 
-* `[Completed]` 🟢 : Feature is fully implemented, verified via unit/integration tests, and built in production.
-* `[In Progress]` 🟡 : Code is currently being written or undergoing local active verification.
-* `[Not Started]` 🔵 : Scheduled roadmap item. No code has been initiated.
+| Check | Result |
+|---|---|
+| Automated tests | **152/152 passed** across 21 files |
+| Production build | Succeeded; **52 modules** transformed |
+| Targeted ESLint checks | **73 JavaScript files**, zero findings for unused variables, unreachable code, and constant conditions |
+| Interactive browser verification | Not performed in this session |
 
----
+## Current implementation notes
 
-## 🟢 1. Core Architecture & Completed Modules
+- Pixel Art has an independent fixed-grid engine and a dedicated Web Worker.
+- Mosaic defaults to Normal Image; Already Pixel Art selects a separate sampling pathway.
+- The Normal Image strategy selector offers Default Pixel Art and Contrast-Aware Ridge & Silhouette. Other strategy engines remain in the source and tests.
+- SVG application branches exist for Pixel Art, Halftone, Random Flow, and Mosaic.
+- Project files store PixelGrid data and settings, not the source image, zoom/pan, or edit history.
+- Pencil mode retains rendering and undo/clear controls; creation of strokes, shapes, and text is not wired to input handlers.
 
-### 1.1 Pixel Art Engine (`src/core/pixel-art/`)
-* [x] **Discrete Fixed-Grid Pipeline**: Completely decoupled from Halftone and Mosaic.
-* [x] **OKLab Perceptual Color Sampling**: Average, median, and dominant color mode implementations in OKLab space.
-* [x] **Median-Cut Palette Quantization**: Generates optimized color sets from 2 to 256 colors dynamically.
-* [x] **10 Retro Palette Presets**: PICO-8 (16), Game Boy (4), Monochrome (2), Commodore 64 (16), Cyberpunk Neon (16), Pastel Dreams (16), Solar 8 (8), EDG 32 (32), NES Classic (54), Lego Studs (40).
-* [x] **Dithering Module**: 3 levels of Bayer Ordered Matrix (2×2, 4×4, 8×8), Floyd-Steinberg, Atkinson, and Random White Noise.
-* [x] **In-Browser Pixel Editor**: BFS Flood Fill, Eyedropper, Pencil, Eraser, Rectangle, and Line tools.
-* [x] **Off-Thread Processing**: Offloaded to `PixelArtWorker.js` Web Worker to ensure 60fps UI responsiveness.
-* [x] **Undo / Redo History**: Centralized in `HistoryManager.js` supporting standard keyboard shortcuts.
+The previous cloud, batch-processing, animation, palette-sync, and multi-layer roadmap was unimplemented and has been removed from this current-project tracker.
 
-### 1.2 Mosaic 5-Stage Engine (`src/core/mosaic/`)
-* [x] **Stage 1 — ContinuousShading**: Evaluates OKLab center sampling in world space to prevent horizontal/vertical seams.
-* [x] **Stage 2 — ContourTracer**: 8-connected Moore-Neighbor tracing to extract design borders on binary masks.
-* [x] **Stage 3 — BackgroundClassifier (LOCKED CORE STANDARD)**: Classifies grid cells into `background`, `boundary`, or `design` states based on color distance and tolerance thresholds. Locked as the canonical background classifier.
-* [x] **Stage 4 — BackgroundRemover (LOCKED CORE STANDARD)**: Perimeter-seeded BFS flood fill supporting Outer Edge (Contiguous/Safe) and Everywhere (Global) scopes. Locked as the canonical background remover.
-* [x] **Stage 5 — PostQualityPass**: snaps boundary tiles to vector boundaries, harmonizes corner cells, and applies morphological Trim/Choke (−2px to +2px).
+## Historical process log
 
-### 1.3 Other Creative Engines
-* [x] **Halftone Engine** (`src/core/halftone/`): Square, Hexagonal, and Radial dot placement grids; Circle, Square, Diamond, Ellipse dot geometries with gamma correction.
-* [x] **Line Art Engine** (`src/core/line-art/`): Sobel Edge Detection, sensitivity threshold controls, and dark-mode invert.
-* [x] **Random Flow Engine** (`src/core/random-flow/`): Flow-field vectors driven by multi-octave Perlin noise particle streams.
-* [x] **Camo Mesh Engine** (`src/core/camo-mesh/`): Cellular camo generator leveraging organic Voronoi partitioning.
-* [x] **Pencil Annotation Engine** (`src/core/pencil/`): Layer for custom brush lines, geometric shape insertion, and annotations.
+The entries below describe earlier work as recorded at the time. Old test counts, deleted filenames, removed controls, and superseded implementation claims are historical context, not current setup instructions or current verification. Current references above take precedence.
 
-### 1.4 Artboard & Document Systems (`src/core/document/`)
-* [x] **Dimensions presets**: Full scale of Landscape (720p to 8K DCI), Portrait (mobile aspect ratios), Square (up to 8K), High-DPI print (A4, A3 poster sizes), and Social Media dimensions.
-* [x] **Solid & Transparent Backgrounds**: Seamless toggle between checkers pattern canvas and target solid presentation color.
+Duplicate entries have been consolidated by title, retaining the more complete copy.
 
-### 1.5 Export & Save Systems (`src/core/export/`)
-* [x] **True Vector SVG Exporter**: Converts grids/cells into mathematical SVG shapes in 4 specialized modes (Editable cells, Optimized run-length rows, Grouped-by-color `<g fill>`, or Object islands). Zero embedded raster `<image>` tags.
-* [x] **Nearest-Neighbor PNG Exporter**: Guarantees sharp, crisp pixels upscaled at 1×, 2×, 4×, 8×, or custom ratios.
-* [x] **Project Save / Load**: Encodes full application state, custom palette values, and edit history into a `.pixelart` JSON project file.
-
-### 1.6 Viewport Shell & Gesture Navigation
-* [x] **Responsive Shell**: Breakpoint-optimized responsive shell (Desktop, Compact Desktop, Tablet sidebar drawers, Mobile layout with bottom control sheet).
-* [x] **Zoom & Pan Engine**: Scroll-anchored pointer zoom, Right-Click / Space+Drag panning, and touch pinch-to-zoom gestures.
-* [x] **Marketplace Safe Check**: Validates transparency compliance, resolution boundaries, and metadata keywords before export.
-
----
-
-## 🟢 2. Completed Extension Features
-
-These extension features have been fully implemented, verified via automated test suites, and built for production:
-
-### 2.1 Intelligent Auto-Fit Stock Engine (🟢 100% Completed)
-* **Objective**: Automate aspect-ratio locked zero-crop dimension scaling of artwork to fit microstock submission guidelines (min 4.0 Megapixels threshold for Adobe Stock, Shutterstock, Freepik).
-* **Requirements**:
-  * [x] **Zero Crop & Aspect-Ratio Preservation**: Guarantees 100% of the uploaded image design is preserved with zero cut-off and locked aspect ratio.
-  * [x] **Core Auto-Fit Scaling Module (`AutoFitStockEngine.js`)**: Pure ES module calculating uniform scale factors ($S$) to elevate any resolution to $\ge 4.0\text{ MP}$.
-  * [x] **Marketplace Technical Inspection (`MarketplaceSafeCheck.js`)**: Integrates resolution audit and 1-click scale recommendations.
-  * [x] **UI & Live Viewport Indicators (`index.html` & `src/main.js`)**: Live `#statusStockBadge` indicator in app statusbar and 1-Click Auto-Fit buttons in export/safe-check modals.
-  * [x] **Automated Unit & Regression Suite (`test/auto-fit-stock.test.js`)**: 6 unit tests added. All 112 / 112 vitest tests passing and clean 44-module production build.
-
-### 2.3 Already Pixel Art & Mosaic Design Preservation Fix (🟢 100% Completed)
-* **Objective**: Fix pixel art sprite sheet rendering corruption in Mosaic mode when "Already Pixel Art (Exact 1:1 Cell Preserve)" is selected, preventing loss/erasure of enclosed white text, shield graphics, progress bars, and letter details.
-* **Requirements**:
-  * [x] Problem & Root Cause Diagnosis: Stage 1 sub-pixel background filtering and Stage 1A edge snapping were corrupting white/light interior sprite design cells into background cells, causing Stage 4 to erase them.
-  * [x] Exact 1:1 Center Pixel Sampling Fix in `MosaicEngine.js`: Ensure `already-pixel-art` mode preserves exact cell center colors without excluding white/light design elements as background during Stage 1 sampling.
-  * [x] Interior Protection in `purifyCleanEdges`: Restrict background snapping in Step 3 strictly to outer perimeter/boundary cells when `scope === 'outer'`, keeping interior design cells 100% immune.
-  * [x] Unit & Regression Verification: Added unit test for enclosed sprite text preservation, verified all 112 / 112 vitest tests pass, and clean 44-module production build.
-
-### 2.4 Mosaic 100% Pixel Cleanup & Quality Verification Engine (🟢 100% Completed)
-* **Objective**: Build an isolated, non-destructive Mosaic Pixel Cleanup engine and 100% Verification system conforming strictly to the Mosaic 100% Cleanup architecture.
-* **Requirements**:
-  * [x] **Isolated Cleanup Engine (`MosaicCleanupEngine.js`)**: Implemented non-destructive pipeline detecting outside floating noise & internal noise while protecting intentional pixel-art stair-step geometry and text.
-  * [x] **Machine-Checkable Verification Engine (`MosaicVerificationEngine.js`)**: Implemented 4 quality checks (Outside Noise, Edge Geometry, Internal Noise, Protection) returning machine-checkable reports and earned `100% CLEAN` status text.
-  * [x] **Sidebar UI Controls (`index.html` & `src/styles/index.css`)**: Added `100% Pixel Cleanup` section with Auto Clean button, manual tools (Remove, Restore, Protect), sensitivity slider, quality checkmarks (`✓`), and `100% CLEAN` badge.
-  * [x] **State & Engine Integration (`src/main.js` & `MosaicEngine.js`)**: Wired state handlers, manual tools, and Stage 7 verification output.
-  * [x] **Automated Unit & Regression Verification (`test/mosaic-cleanup-verification.test.js`)**: Created unit tests for cleanup and verification engine. All 112 / 112 vitest tests passing and clean 44-module production build.
-
-### 2.5 Mosaic Edge Intelligence & Individual Design Boundary Verification (🟢 100% Completed)
-* **Objective**: Build an isolated Individual Design Object Detector (`MosaicDesignDetector.js`), Boundary Contour Analyzer (`MosaicBoundaryAnalyzer.js`), and upgraded 5-check Verification Engine (`MosaicVerificationEngine.js`) conforming strictly to the Mosaic Edge Intelligence architecture.
-* **Requirements**:
-  * [x] **Individual Design Detector (`MosaicDesignDetector.js`)**: Implemented 8-connected component segmentation to detect and track individual artwork objects (`Design 1: PLAY`, `Design 2: SWORD`, `Design 3: 1UP`, etc.) on multi-item canvases.
-  * [x] **Boundary Contour Analyzer (`MosaicBoundaryAnalyzer.js`)**: Implemented cell-by-cell edge-by-edge perimeter contour analysis across all 4 sides (`top`, `bottom`, `left`, `right`), classifying boundary cells (`KEEP`, `REMOVE`, `REVIEW`, `PROTECTED`) while preserving 1x1 stair-step pixel-art geometry.
-  * [x] **Strict True 100% Verification Gate (`MosaicVerificationEngine.js`)**: Upgraded to 5-check verification engine (`Outside Noise`, `Edge Geometry`, `Internal Noise`, `Protection`, `Design Boundaries`). Ensures 1 unresolved edge issue on any design object prevents false `100% CLEAN`.
-  * [x] **Sidebar UI Controls (`index.html` & `src/styles/index.css`)**: Added `Analyze Edges` button (`#msAnalyzeEdgesBtn`), `Edge Sensitivity` slider (`#msEdgeSensitivitySlider`), and `Design Boundaries` quality checkmark indicator (`#msCheckDesignBoundaries`).
-  * [x] **Automated Unit & Regression Verification (`test/mosaic-edge-intelligence.test.js`)**: Created unit tests verifying design segmentation, contour analysis, and true 100% verification gate. All 112 / 112 vitest tests passing and clean 44-module production build.
-
-### 2.6 Boundary Edge Fringe Purifier & Crisp Solid Outline Preservation (🟢 100% Completed)
-* **Objective**: Build a dedicated Boundary Edge Fringe Purifier (`BackgroundRemover.purifyBoundaryFringe`) that purges anti-aliased background-to-outline transition fringe pixels sitting outside solid design boundaries (such as solid black outlines `#000000`), leaving a crisp, 100% clean solid boundary around all sprite items.
-* **Requirements**:
-  * [x] **Boundary Edge Fringe Purifier (`BackgroundRemover.js`)**: Implemented static method `purifyBoundaryFringe(grid, targetRgbList, options)` that detects outer perimeter cells touching removed background and purges intermediate anti-aliased blend pixels.
-  * [x] **Solid Black Outline Preservation (`BackgroundRemover.js`)**: 100% protects solid black outlines (`r,g,b < 70`, `#000000`) and solid design body colors, preventing outline erosion or clipping.
-  * [x] **Pipeline Integration (`BackgroundRemover.js` & `MosaicCleanupEngine.js`)**: Automatically executes edge purification during Stage 4 background removal and Auto Clean passes.
-  * [x] **Automated Unit & Regression Verification (`test/mosaic-boundary-fringe-purifier.test.js`)**: Created unit tests verifying transition fringe purging and solid outline preservation. All 112 / 112 vitest tests passing and clean 44-module production build.
-
-### 2.7 Unified Reset All Button & Interactive Sensitivity Sliders (🟢 100% Completed)
-* **Objective**: Consolidate Mosaic reset controls into a single unified button (`#msResetAllBtn`) at the very bottom of the sidebar and ensure 100% real-time interactive functionality for Noise Threshold and Edge Sensitivity sliders.
-* **Requirements**:
-  * [x] **Single Unified Reset Button (`index.html`)**: Removed duplicate top `#msResetBgBtn` and middle `#msResetCleanupBtn`. Placed single unified `#msResetAllBtn` at the very bottom of `#msCleanupSection` titled **`Reset All Colors, Filters & Cleanup`**.
-  * [x] **Unified State Reset Handler (`src/main.js`)**: Implemented `resetMosaicAll()` that resets background removal colors, active removal lists, tolerance, filters, manual overrides, protected cells, restored cells, and sensitivity sliders in one action.
-  * [x] **100% Interactive Sensitivity Sliders (`src/main.js`)**: Wired `#msNoiseSlider` and `#msEdgeSensitivitySlider` input listeners to set `cleanupEnabled = true` and trigger real-time re-render on every slider move.
-  * [x] **Automated Unit & Regression Verification**: All 112 / 112 vitest tests passing and clean 44-module production build.
-
-### 2.8 Mosaic Multi-Strategy Pixel Art Vectorization System (🟢 100% Completed)
-* **Objective**: Expand the Mosaic engine into a production-grade Multi-Strategy Pixel Art Vectorization System conforming strictly to the Multi-Strategy Pixel Art Vectorization architecture.
-* **Problem & Intended Result**: Expand vectorization capabilities by offering 5 alternative strategies alongside the baseline Default Pixel Art system (`default-pixel-art`, `island-grid`, `orthogonal-contour`, `adaptive-quadtree`, `integer-resample`, `auto-detect`) without breaking or modifying existing features.
-* **Scope**: Additive strategy engines in `src/core/mosaic/`, strategy router in `MosaicEngine.js`, UI controls in `index.html`, `src/styles/index.css`, `src/main.js`, and comprehensive unit tests in `test/mosaic-multi-strategy.test.js`.
-* **Requirements**:
-  * [x] **Strategy 1 — Default Pixel Art (`default-pixel-art`)**: Preserved baseline default 5-stage pipeline behavior.
-  * [x] **Strategy 2 — Multi-Sprite Island Grid (`island-grid`)**: Implemented connected component island segmentation (`SpriteIslandEngine.js`), local bounding boxes, and per-island phase alignment.
-  * [x] **Strategy 3 — Direct Orthogonal Contour (`orthogonal-contour`)**: Implemented 4-connected Manhattan contour tracing (`OrthogonalContourEngine.js`) and collinear segment merging.
-  * [x] **Strategy 4 — Adaptive Quadtree (`adaptive-quadtree`)**: Implemented hierarchical spatial quadtree decomposition (`AdaptiveQuadtreeEngine.js`) preserving 1px details.
-  * [x] **Strategy 5 — Native Integer Resampler (`integer-resample`)**: Implemented integer scale detection (`PixelArtResampler.js`) and core center sampling.
-  * [x] **Strategy 6 — Auto Detect (`auto-detect`)**: Implemented artwork analysis recommendation engine (`MosaicStrategyDetector.js`) without silent manual override.
-  * [x] **Sidebar UI Integration (`index.html`, `src/styles/index.css`, `src/main.js`)**: Added `#msMosaicStrategySelect` and dynamic strategy-specific sub-controls.
-  * [x] **Automated Unit & Regression Verification (`test/mosaic-multi-strategy.test.js`)**: All 112 / 112 vitest unit tests passing and clean 44-module production build.
-
-### 2.9 Mosaic Multi-Strategy Canvas Rendering & Pipeline Integration Fix (🟢 100% Completed)
-* **Objective**: Fix empty document canvas rendering when alternative Mosaic strategies (`island-grid`, `orthogonal-contour`, `adaptive-quadtree`, `integer-resample`, `auto-detect`) are selected in the UI.
-* **Problem & Root Cause**: Alternative strategy dispatches in `MosaicEngine.process` bypassed pipeline Stages 3-7 and returned raw partial objects missing canvas metadata (`width`, `height`, `tileSize`, `transparentBg`, `bgColor`, `tiles`, `contours`, etc.). As a result, `MosaicEngine.renderToCanvas` could not render grid cells on the canvas viewport.
-* **Requirements & Resolution**:
-  * [x] **Pipeline Integration (`MosaicEngine.js`)**: Routed strategy grid generation (`SpriteIslandEngine`, `OrthogonalContourEngine`, `AdaptiveQuadtreeEngine`, `PixelArtResampler`) directly into `MosaicEngine.process` so strategy grids run through background classification, background removal, trim, contour tracing, quality passes, and full metadata result assembly.
-  * [x] **Cell Color Standardization**: Ensured all strategy engines produce standardized `CellModel` cells with `rgb(...)` color strings and accurate cell coordinates.
-  * [x] **Canvas & UI Parity**: Verified canvas rendering, document colors, background removal, verification reports, SVG exports, and 112 unit tests across all strategies.
-  * [x] **Production Verification**: Clean 44-module production bundle (`npm run build`).
-
-### 2.10 Mosaic Multi-Strategy Quality Enhancement & Visible Differentiation (🟢 100% Completed)
-* **Objective**: Deliver visibly distinct, superior-quality processing for alternative Mosaic strategies (`adaptive-quadtree`, `orthogonal-contour`, `island-grid`, `integer-resample`) and add dedicated real-time sidebar controls while keeping `Default Pixel Art` 100% untouched.
-* **Requirements & Resolution**:
-  * [x] **Adaptive Quadtree (`adaptive-quadtree`)**: Multi-level spatial decomposition rendering actual variable-size leaf cells (large cells in flat regions, fine 1px/2px cells along edges/details).
-  * [x] **Direct Orthogonal Contour (`orthogonal-contour`)**: 4-connected discrete color region merging and collinear Manhattan merging rendering seamless 90° vector bands.
-  * [x] **Multi-Sprite Island Grid (`island-grid`)**: Per-island local bounding box reconstruction aligning cells to each sprite's authentic origin and phase.
-  * [x] **Native Integer Resampler (`integer-resample`)**: Precise integer scale detection and core-sampled native pixel reconstruction.
-  * [x] **Sidebar UI Controls (`#msStrategyControls`)**: Dynamic interactive controls for each strategy with instant real-time canvas updates.
-  * [x] **Automated Verification**: 112 / 112 Vitest unit tests passing and clean 44-module Vite production build.
-
----
-
-
-
-
-
-## 🔵 3. Future Roadmap
-
-### Phase 1 — Stock Platform Extensions
-* [ ] Adobe Illustrator JSX bridge: Export native direct script layers for Illustrator.
-* [ ] Batch Process queue: Drop-zone to queue multiple images and export a ZIP bundle.
-* [ ] Advanced Vector Path Merging: Optimizes exported SVG paths by grouping adjacent geometric shapes.
-
-### Phase 2 — Multi-Layer & Animation
-* [ ] Multi-layer canvas: layer stack, visibility, blend modes, and opacity controls.
-* [ ] Frame Timeline: Onion-skinning frame editor, FPS slider, and animated GIF/APNG export.
-
-### Phase 3 — Cloud & Palette Ecosystem
-* [ ] Lospec palette API sync: Live search and import.
-* [ ] Palettes Import/Export: ACT, HEX, PAL, GPL file standard support.
-* [ ] Local auto-save: IndexedDB system to restore projects after browser crashes.
-
----
-
-## 🧪 Verification Log
-
-### Test Suite Summary
-
-| Test File | Tests | Status |
-|---|:---:|:---:|
-| `test/pixel-art.test.js` | 15 | 🟢 PASS |
-| `test/mosaic-already-pixel-art.test.js` | 9 | 🟢 PASS |
-| `test/mosaic-architecture-stages.test.js` | 5 | 🟢 PASS |
-| `test/mosaic-background-removal.test.js` | 9 | 🟢 PASS |
-| `test/mosaic-pixel-perfect-preservation.test.js` | 12 | 🟢 PASS |
-| `test/mosaic-trim.test.js` | 10 | 🟢 PASS |
-| `test/document-and-background.test.js` | 13 | 🟢 PASS |
-| `test/responsive-layout.test.js` | 8 | 🟢 PASS |
-| `test/document-color-extractor.test.js` | 3 | 🟢 PASS |
-| `test/mosaic-cleanup-verification.test.js` | 5 | 🟢 PASS |
-| `test/mosaic-edge-intelligence.test.js` | 5 | 🟢 PASS |
-| `test/clean-edge-purifier-preservation.test.js` | 2 | 🟢 PASS |
-| `test/document-color-controls.test.js` | 5 | 🟢 PASS |
-| `test/mosaic-boundary-fringe-purifier.test.js` | 1 | 🟢 PASS |
-| `test/auto-fit-stock.test.js` | 6 | 🟢 PASS |
-| `test/mosaic-multi-strategy.test.js` | 6 | 🟢 PASS |
-| `test/mosaic-strategies-and-sampling.test.js` | 12 | 🟢 PASS |
-| `test/mosaic-v2-pure-pixel-pipeline.test.js` | 13 | 🟢 PASS |
-| `test/mosaic-quality-verification-toggle.test.js` | 3 | 🟢 PASS |
-| `test/mosaic-pixel-diff.test.js` | 2 | 🟢 PASS |
-| `test/mosaic-manual-paint-overrides.test.js` | 1 | 🟢 PASS |
-| **Total Passed** | **147 / 147** | **🟢 100% PASS** |
-
----
-
-## 📝 Chronological Process Log
-
-A running log capturing active engineering starts, process changes, and completions.
-
-### [Log Entry 015] — Unused Code Removal & Comprehensive Documentation Synchronization
+### [Historical Note — September 5, 2026] — Unused Code Removal & Comprehensive Documentation Synchronization
 * **Date**: September 5, 2026
 * **Status**: 🟢 Completed
 * **Activity**:
@@ -229,6 +57,8 @@ A running log capturing active engineering starts, process changes, and completi
   * **Documentation Synchronized**: Updated `docs/ARCHITECTURE.md`, `docs/FINAL_QA_REPORT.md`, and `WEBSITE_DEVELOPMENT_TRACKER.md` to reflect all 16 test files (112 tests), 44 Vite production build modules, and complete strategy engine file maps.
   * **Verification**: Ran `npx oxlint src` (0 errors, 0 warnings), `npx vitest run` (112 / 112 tests passing), and `npx vite build` (clean 44-module production bundle).
 
+---
+
 ### [Log Entry 001] — Code Audit and Decoupled Cleanup
 * **Date**: August 30, 2026
 * **Status**: 🟢 Completed
@@ -241,6 +71,8 @@ A running log capturing active engineering starts, process changes, and completi
   * **Bug Corrected**: Fixed copy-paste bug in `PostQualityPass.js` where blue channel average calculation (`avgB`) was bound to green channel sum (`sumG`).
   * **Process Completed**: Re-ran the full automated test suite (87 tests passed) and executed Vite production builds (compiles cleanly with 35 modules).
 
+---
+
 ### [Log Entry 002] — Documentation Alignment and Tracker Upgrade
 * **Date**: August 30, 2026
 * **Status**: 🟢 Completed
@@ -251,6 +83,8 @@ A running log capturing active engineering starts, process changes, and completi
     * Synchronized test counts (73 ➔ 87) and built modules counts (34 ➔ 35) across `WEBSITE_DEVELOPMENT_TRACKER.md` and `docs/FINAL_QA_REPORT.md`.
     * Upgraded this `WEBSITE_DEVELOPMENT_TRACKER.md` file to act as the official project tracker with legends, explicit requirements, and a running activity log.
   * **Process Completed**: Saved and verified document integrity.
+
+---
 
 ### [Log Entry 003] — Removal of Auto-Detect Grid Button & Associated UI Actions
 * **Date**: August 30, 2026
@@ -266,6 +100,8 @@ A running log capturing active engineering starts, process changes, and completi
     * Production build (`npm run build`): **Clean compile (35 modules)**.
   * **Process Completed**: Task verified and fully completed.
 
+---
+
 ### [Log Entry 004] — Display Uploaded Image Preview & File Name in Dropzone Box
 * **Date**: August 31, 2026
 * **Status**: 🟢 Completed
@@ -279,6 +115,8 @@ A running log capturing active engineering starts, process changes, and completi
     * Automated test suite (`npm test`): **87 / 87 tests passing**.
     * Production build (`npm run build`): **Clean compile (35 modules)**.
   * **Process Completed**: Task verified and fully completed.
+
+---
 
 ### [Log Entry 005] — Refine Dropzone Responsive Image Fit, Filename & Text Alignment
 * **Date**: August 31, 2026
@@ -294,6 +132,8 @@ A running log capturing active engineering starts, process changes, and completi
     * Production build (`npm run build`): **Clean compile (35 modules)**.
   * **Process Completed**: Task verified and fully completed.
 
+---
+
 ### [Log Entry 006] — Make 0%, 5%, 10%, and 20% Color Tolerance Buttons Functional
 * **Date**: August 31, 2026
 * **Status**: 🟢 Completed
@@ -307,6 +147,8 @@ A running log capturing active engineering starts, process changes, and completi
     * Automated test suite (`npm test`): **87 / 87 tests passing**.
     * Production build (`npm run build`): **Clean compile (35 modules)**.
   * **Process Completed**: Task verified and fully completed.
+
+---
 
 ### [Log Entry 007] — Set Default Mosaic Tile Size to 16x16 (16px)
 * **Date**: August 31, 2026
@@ -322,6 +164,8 @@ A running log capturing active engineering starts, process changes, and completi
     * Production build (`npm run build`): **Clean compile (35 modules)**.
   * **Process Completed**: Task verified and fully completed.
 
+---
+
 ### [Log Entry 008] — Make Mosaic Engine Dithering Options Fully Functional
 * **Date**: August 31, 2026
 * **Status**: 🟢 Completed
@@ -335,6 +179,8 @@ A running log capturing active engineering starts, process changes, and completi
     * Automated test suite (`npm test`): **87 / 87 tests passing**.
     * Production build (`npm run build`): **Clean compile (35 modules)**.
   * **Process Completed**: Task verified and fully completed.
+
+---
 
 ### [Log Entry 009] — Make Floating Editor Toolbar Perfectly Responsive
 * **Date**: August 31, 2026
@@ -350,6 +196,8 @@ A running log capturing active engineering starts, process changes, and completi
     * Production build (`npm run build`): **Clean compile (35 modules)**.
   * **Process Completed**: Task verified and fully completed.
 
+---
+
 ### [Log Entry 010] — Enhance Eyedropper Icon and Active Color Swatch Visibility
 * **Date**: August 31, 2026
 * **Status**: 🟢 Completed
@@ -364,6 +212,8 @@ A running log capturing active engineering starts, process changes, and completi
     * Production build (`npm run build`): **Clean compile (35 modules)**.
   * **Process Completed**: Task verified and fully completed.
 
+---
+
 ### [Log Entry 011] — Replace Color Picker with Pro-Level Round Swatch Circle Button
 * **Date**: August 31, 2026
 * **Status**: 🟢 Completed
@@ -377,6 +227,8 @@ A running log capturing active engineering starts, process changes, and completi
     * Automated test suite (`npm test`): **87 / 87 tests passing**.
     * Production build (`npm run build`): **Clean compile (35 modules)**.
   * **Process Completed**: Task verified and fully completed.
+
+---
 
 ### [Log Entry 012] — Add Floating Editor Tools & Active Palette Swatches to Mosaic Mode
 * **Date**: August 31, 2026
@@ -393,6 +245,8 @@ A running log capturing active engineering starts, process changes, and completi
     * Production build (`npm run build`): **Clean compile (35 modules)**.
   * **Process Completed**: Task verified and fully completed.
 
+---
+
 ### [Log Entry 013] — Fix Mosaic Eraser Persistence & Prevent Toolbar Click Canvas Drawing
 * **Date**: August 31, 2026
 * **Status**: 🟢 Completed
@@ -405,6 +259,8 @@ A running log capturing active engineering starts, process changes, and completi
     * Automated test suite (`npm test`): **87 / 87 tests passing**.
     * Production build (`npm run build`): **Clean compile (35 modules)**.
   * **Process Completed**: Task verified and fully completed.
+
+---
 
 ### [Log Entry 014] — Fix Mosaic Eraser Tool Execution & Cell Erasure
 * **Date**: August 31, 2026
@@ -419,6 +275,8 @@ A running log capturing active engineering starts, process changes, and completi
     * Production build (`npm run build`): **Clean compile (35 modules)**.
   * **Process Completed**: Task verified and fully completed.
 
+---
+
 ### [Log Entry 015] — Fix Mosaic Canvas Clearing & Eraser Rendering Fallback
 * **Date**: August 31, 2026
 * **Status**: 🟢 Completed
@@ -431,6 +289,8 @@ A running log capturing active engineering starts, process changes, and completi
     * Automated test suite (`npm test`): **87 / 87 tests passing**.
     * Production build (`npm run build`): **Clean compile (35 modules)**.
   * **Process Completed**: Task verified and fully completed.
+
+---
 
 ### [Log Entry 016] — Removal of Manual Pixel Touch-Up UI Section
 * **Date**: September 1, 2026
@@ -445,6 +305,8 @@ A running log capturing active engineering starts, process changes, and completi
   * **Verification Results**:
     * Automated test suite (`npm test`): **87 / 87 tests passing**.
 
+---
+
 ### [Log Entry 017] — Lock Canonical Background Engine Architecture
 * **Date**: September 1, 2026
 * **Status**: 🟢 Completed
@@ -458,6 +320,8 @@ A running log capturing active engineering starts, process changes, and completi
     * Automated test suite (`npm test`): **87 / 87 tests passing**.
     * Production build (`npm run build`): **Clean compile (35 modules, 0 errors)**.
   * **Process Completed**: Standard locked and verified.
+
+---
 
 ### [Log Entry 018] — Unused Code & Unreferenced Import Cleanup
 * **Date**: September 1, 2026
@@ -474,6 +338,8 @@ A running log capturing active engineering starts, process changes, and completi
     * Production build (`npm run build`): **Clean compile (34 modules, 0 errors)**.
   * **Process Completed**: Codebase audited and verified clean.
 
+---
+
 ### [Log Entry 019] — Local Silhouette Outline Snapping & Design Corner Color Preservation
 * **Date**: September 1, 2026
 * **Status**: 🟢 Completed
@@ -488,6 +354,8 @@ A running log capturing active engineering starts, process changes, and completi
     * Automated test suite (`npm test`): **87 / 87 tests passing**.
     * Production build (`npm run build`): **Clean compile (34 modules, 0 errors)**.
   * **Process Completed**: Task verified and fully completed.
+
+---
 
 ### [Log Entry 020] — Dominant Design Feature Tile Sampling for Out-of-Phase Sprite Sheets
 * **Date**: September 1, 2026
@@ -505,6 +373,8 @@ A running log capturing active engineering starts, process changes, and completi
     * Production build (`npm run build`): **Clean compile (34 modules, 0 errors)**.
   * **Process Completed**: Task verified and fully completed.
 
+---
+
 ### [Log Entry 021] — Pure Design Color Sampling & Interior Feature Protection
 * **Date**: September 1, 2026
 * **Status**: 🟢 Completed
@@ -519,6 +389,8 @@ A running log capturing active engineering starts, process changes, and completi
     * Automated test suite (`npm test`): **99 / 99 tests passing**.
     * Production build (`npm run build`): **Clean compile (38 modules, 0 errors)**.
   * **Process Completed**: Task verified and fully completed.
+
+---
 
 ### [Log Entry 022] — Unused Code Cleanup & Complete Documentation Alignment
 * **Date**: September 2, 2026
@@ -535,6 +407,8 @@ A running log capturing active engineering starts, process changes, and completi
     * Automated test suite (`npx vitest run`): **99 / 99 tests passing across 14 test files**.
     * Production build (`npx vite build`): **38 modules transformed, 0 errors, 0 warnings**.
   * **Process Completed**: Code and documentation 100% synchronized.
+
+---
 
 ### [Log Entry 023] — Mosaic Multi-Strategy Pixel Art Vectorization System
 * **Date**: September 2, 2026
@@ -555,200 +429,7 @@ A running log capturing active engineering starts, process changes, and completi
     * Production build (`npx vite build`): **43 modules transformed cleanly, 0 errors**.
   * **Process Completed**: Task verified and marked 🟢 COMPLETED.
 
-### [Log Entry 024] — Mosaic Multi-Strategy Canvas Rendering & Pipeline Integration Fix
-* **Date**: September 2, 2026
-* **Status**: 🟢 Completed
-* **Activity**:
-  * **Process Started**: Resolved empty document canvas rendering issue when selecting alternative Mosaic strategies (`island-grid`, `orthogonal-contour`, `adaptive-quadtree`, `integer-resample`, `auto-detect`).
-  * **Root Cause & Fix**:
-    1. Strategy engines now generate initial `grid` structures which flow directly through Stages 3-7 of `MosaicEngine.process()`.
-    2. Attached complete canvas result metadata (`width`, `height`, `tileSize`, `transparentBg`, `bgColor`, `tiles`, `contours`, `verificationReport`, `strategyRecommendation`).
-    3. Standardized cell color format (`rgb(...)`) across `SpriteIslandEngine`, `OrthogonalContourEngine`, `AdaptiveQuadtreeEngine`, and `PixelArtResampler`.
-  * **Verification Results**:
-    * Automated test suite (`npx vitest run`): **105 / 105 tests passing across 15 test files**.
-    * Production build (`npx vite build`): **43 modules transformed cleanly, 0 errors**.
-  * **Process Completed**: Task verified and marked 🟢 COMPLETED.
-
-### [Log Entry 025] — Mosaic Multi-Strategy Quality Enhancement & Visible Differentiation
-* **Date**: September 2, 2026
-* **Status**: 🟢 Completed
-* **Activity**:
-  * **Process Started**: Enhanced alternative Mosaic strategies to ensure visibly distinct and higher quality results while keeping `Default Pixel Art` 100% untouched.
-  * **Enhancements Delivered**:
-    1. **Adaptive Quadtree**: Direct canvas rendering of variable-size quadtree leaf cells (1px/2px fine edge detail vs 16px/32px cohesive flat regions).
-    2. **Direct Orthogonal Contour**: Collinear row-merging into seamless 90° Manhattan rectangular vector bands.
-    3. **Multi-Sprite Island Grid**: Island local phase alignment and origin anchoring to avoid global grid phase cutting.
-    4. **Interactive Sidebar Sub-Controls**: Added `#msStrategyControls` with dynamic inputs for each strategy (sliders, dropdowns, toggles) linked to immediate real-time canvas re-rendering.
-  * **Verification Results**:
-    * Automated test suite (`npx vitest run`): **105 / 105 tests passing across 15 test files**.
-    * Production build (`npx vite build`): **43 modules transformed cleanly, 0 errors**.
-  * **Process Completed**: Task verified and marked 🟢 COMPLETED.
-### [Log Entry 026] — Pixel Art Export Document Size Synchronization Fix
-* **Date**: September 5, 2026
-* **Status**: 🟢 Completed
-  * **Process Completed**: Task verified and fully completed.
-
-### [Log Entry 013] — Fix Mosaic Eraser Persistence & Prevent Toolbar Click Canvas Drawing
-* **Date**: August 31, 2026
-* **Status**: 🟢 Completed
-* **Activity**:
-  * **Process Started**: Initiated fix for Mosaic Eraser tool persistence and viewport click propagation guard for floating toolbars.
-  * **Actual Changes Implemented**:
-    * Updated `MosaicEngine.js` STAGE 1 cell creation to support `override.type === 'erase'`, setting `sample.a = 0`, `occupied = false`, and `isRemoved = true` so tile erasure is 100% persistent across engine re-renders.
-    * Added early `e.target.closest('.floating-zoom-controls, .floating-editor-toolbar')` guard to viewport `mousedown` and `touchstart` listeners in `src/main.js` so clicking toolbar buttons (zoom, reset, grid, tool buttons) never triggers pixel/tile drawing.
-  * **Verification Results**:
-    * Automated test suite (`npm test`): **87 / 87 tests passing**.
-    * Production build (`npm run build`): **Clean compile (35 modules)**.
-  * **Process Completed**: Task verified and fully completed.
-
-### [Log Entry 014] — Fix Mosaic Eraser Tool Execution & Cell Erasure
-* **Date**: August 31, 2026
-* **Status**: 🟢 Completed
-* **Activity**:
-  * **Process Started**: Initiated fix to ensure Mosaic Eraser tool erases cells/pixels across brush sizes and stays persistent across Mosaic engine stages.
-  * **Actual Changes Implemented**:
-    * Updated `handleMosaicTool()` in `src/main.js` to set `cell.occupied = false`, `cell.isRemoved = true`, `cell.sample.a = 0`, handle `brushSize` multi-cell erasure, and store `{ type: 'erase', action: 'remove', removed: true }` in `manualOverrides`.
-    * Updated STAGE 5 manual override evaluation in `MosaicEngine.js` to respect `type === 'erase'` and `action === 'remove'`, preventing downstream Mosaic Trim or Topology Guard passes from restoring erased tiles.
-  * **Verification Results**:
-    * Automated test suite (`npm test`): **87 / 87 tests passing**.
-    * Production build (`npm run build`): **Clean compile (35 modules)**.
-  * **Process Completed**: Task verified and fully completed.
-
-### [Log Entry 015] — Fix Mosaic Canvas Clearing & Eraser Rendering Fallback
-* **Date**: August 31, 2026
-* **Status**: 🟢 Completed
-* **Activity**:
-  * **Process Started**: Initiated fix for canvas clearing and Eraser tool rendering fallback in Mosaic mode.
-  * **Actual Changes Implemented**:
-    * Added canvas dimension fallbacks (`ctx.canvas.width` and `ctx.canvas.height`) in `MosaicEngine.renderToCanvas` so canvas clearing (`clearRect`) never fails due to missing dimension options.
-    * Explicitly passed `width`, `height`, `transparentBg`, and `bgColor` in all `MosaicEngine.renderToCanvas` calls in `handleMosaicTool()` and `handleMosaicShapeEnd()` in `src/main.js`.
-  * **Verification Results**:
-    * Automated test suite (`npm test`): **87 / 87 tests passing**.
-    * Production build (`npm run build`): **Clean compile (35 modules)**.
-  * **Process Completed**: Task verified and fully completed.
-
-### [Log Entry 016] — Removal of Manual Pixel Touch-Up UI Section
-* **Date**: September 1, 2026
-* **Status**: 🟢 Completed
-* **Activity**:
-  * **Process Started**: Initiated clean removal of the "Manual Pixel Touch-Up" sidebar section under Mosaic mode (`#msManualTouchUpGroup`), associated state properties, event listeners, and helper methods.
-  * **Actual Changes Implemented**:
-    * Removed `#msManualTouchUpGroup` DOM container (header, `#msTouchUpBadge`, `#msTouchUpButtonGroup`, `#msPaintColorRow`, and `#msTouchUpHint`) from `index.html`.
-    * Removed `manualTouchUp` property from Mosaic state, DOM element references (`msManualTouchUpGroup`, `msTouchUpBadge`, `msTouchUpButtons`), click listener binding, `setMosaicTouchUpMode()` helper method, and reset call in `src/main.js`.
-    * Removed `.canvas-container.manual-touchup-active` rule from `src/styles/index.css`.
-    * Kept floating canvas toolbar tools and background removal filter controls 100% intact.
-  * **Verification Results**:
-    * Automated test suite (`npm test`): **87 / 87 tests passing**.
-
-### [Log Entry 017] — Lock Canonical Background Engine Architecture
-* **Date**: September 1, 2026
-* **Status**: 🟢 Completed
-* **Activity**:
-  * **Process Started**: Confirmed and locked `BackgroundClassifier.js` and `BackgroundRemover.js` as the permanent core architectural standards for Background Classification & Removal across the repository.
-  * **Architectural Locks Enforced**:
-    * `src/core/mosaic/BackgroundClassifier.js` is locked as the canonical cell classifier (`BACKGROUND`, `BOUNDARY`, `DESIGN`).
-    * `src/core/mosaic/BackgroundRemover.js` is locked as the canonical perimeter-seeded BFS flood-fill engine for scope-aware removal (`Outer Edge` / `Everywhere`).
-    * No extra unrequested code, rules, or features added.
-  * **Verification Results**:
-    * Automated test suite (`npm test`): **87 / 87 tests passing**.
-    * Production build (`npm run build`): **Clean compile (35 modules, 0 errors)**.
-  * **Process Completed**: Standard locked and verified.
-
-### [Log Entry 018] — Unused Code & Unreferenced Import Cleanup
-* **Date**: September 1, 2026
-* **Status**: 🟢 Completed
-* **Activity**:
-  * **Process Started**: Audited all JS ES modules, CSS files, and HTML templates across the repository for unused/unreferenced code.
-  * **Actual Changes Implemented**:
-    * Removed unused import `PixelGridDetector` from `src/main.js`.
-    * Removed dead `msScopeButtons` query and unused scope-pill listener/toggle handlers from `src/main.js`.
-    * Removed unreferenced legacy CSS rules (`.scope-pill-group`, `.scope-pill-btn`, `.doc-color-item`, `.doc-color-meta`, `.toolbar-separator`) from `src/styles/index.css`.
-    * Kept 100% of used logic, functions, engines, and tests intact.
-  * **Verification Results**:
-    * Automated test suite (`npm test`): **87 / 87 tests passing**.
-    * Production build (`npm run build`): **Clean compile (34 modules, 0 errors)**.
-  * **Process Completed**: Codebase audited and verified clean.
-
-### [Log Entry 019] — Local Silhouette Outline Snapping & Design Corner Color Preservation
-* **Date**: September 1, 2026
-* **Status**: 🟢 Completed
-* **Activity**:
-  * **Problem Identified**: Global averaging of dark boundary cells in `PostQualityPass.js` (Pass 1) was blending dark outlines from multi-colored objects (green/red/blue/yellow buttons & progress bars) into a single global muddy grey, corrupting sprite borders. Additionally, Pass 3 corner snapping was overwriting high-contrast letter corners and progress bar end-caps with neighboring background colors.
-  * **Intended Result**: Preserve exact local object outline colors (dark green for green buttons, dark red for red buttons/progress bars, dark yellow for yellow progress bars) and protect white letter text and progress bar end-cap colors from corruption.
-  * **Scope**: Refine `PostQualityPass.js` Pass 1 to calculate local 5x5 neighborhood outline color clusters (color distance <= 60) rather than a single global artboard average, and protect design feature/letter tiles in Pass 3.
-  * **Implementation Details**:
-    1. Updated Pass 1 in `PostQualityPass.js` to calculate local 5x5 color-aware outline averages per boundary cell cluster so green, red, yellow, blue, and purple object outlines maintain their authentic dark shades.
-    2. Updated Pass 3 in `PostQualityPass.js` to restrict corner harmonization strictly to boundary noise tiles (`category === 'boundary'`), preventing overwriting of white text letters and progress bar end-caps.
-  * **Verification Results**:
-    * Automated test suite (`npm test`): **87 / 87 tests passing**.
-    * Production build (`npm run build`): **Clean compile (34 modules, 0 errors)**.
-  * **Process Completed**: Task verified and fully completed.
-
-### [Log Entry 020] — Dominant Design Feature Tile Sampling for Out-of-Phase Sprite Sheets
-* **Date**: September 1, 2026
-* **Status**: 🟢 Completed
-* **Activity**:
-  * **Problem Identified**: When sampling composite sprite sheets at fixed tile increments (e.g. 16x16), sprites placed at non-zero Y offsets (such as `STOP`, `EXIT`, `GAME OVER`, blue progress bar, gold coins) fall out of phase with grid centers. Small-radius center-point sampling landed on 1px black outline gap lines between text/sprite rows, causing horizontal black line cuts through letters and progress bars.
-  * **Intended Result**: Eliminate horizontal black line cuts and gaps across all out-of-phase sprite text (`STOP`, `EXIT`, `GAME OVER`), progress bars, and coins, while keeping already clean designs (`PLAY` button) 100% clean and intact.
-  * **Scope**: Upgrade Stage 1 tile sampling in `MosaicEngine.js` with full-tile dominant design feature sampling + center-pixel grid weighting, prioritizing dominant non-background design colors over outline gap lines when a tile contains design pixels (>= 12%).
-  * **Implementation Details**:
-    1. Implemented full-tile area color distribution analysis in `src/core/mosaic/MosaicEngine.js` for Stage 1 sampling.
-    2. Prioritized non-background design feature colors over background removal colors when design pixels exist in the tile, eliminating black horizontal line cuts across text and progress bars.
-    3. Added a center-pixel weight boost to anchor grid alignment and break ties in 1:1 cell preservation mode.
-  * **Verification Results**:
-    * Automated test suite (`npm test`): **87 / 87 tests passing**.
-    * Production build (`npm run build`): **Clean compile (34 modules, 0 errors)**.
-  * **Process Completed**: Task verified and fully completed.
-
-### [Log Entry 021] — Pure Design Color Sampling & Interior Feature Protection
-* **Date**: September 1, 2026
-* **Status**: 🟢 Completed
-* **Activity**:
-  * **Problem Identified**: Treating white pixels as background during Stage 1 tile sampling caused white icons (like `STOP` button square icon, `EXIT` text, lion shield highlights) to be ignored as background, replacing them with surrounding dark border tiles. This caused internal design features to be wasted/corrupted and background removal to misclassify internal white icons.
-  * **Intended Result**: Sample all white text icons, lion shield emblem details, progress bars, and sprite letters with 100% pure authentic design colors without treating internal white icons as background, and remove outer background space cleanly.
-  * **Scope**: Refine Stage 1 tile sampling in `MosaicEngine.js` to sample exact core/dominant colors across all design features without background masking during initial sampling, and ensure `BackgroundClassifier.js` protects interior design tiles.
-  * **Implementation Details**:
-    1. Updated Stage 1 tile sampling in `MosaicEngine.js` to perform unbiased core/dominant tile sampling for all non-transparent design pixels.
-    2. Ensured `BackgroundClassifier.js` & `BackgroundRemover.js` protect interior design tiles (such as white text/icons inside buttons and shields).
-  * **Verification Results**:
-    * Automated test suite (`npm test`): **99 / 99 tests passing**.
-    * Production build (`npm run build`): **Clean compile (38 modules, 0 errors)**.
-  * **Process Completed**: Task verified and fully completed.
-
-### [Log Entry 022] — Unused Code Cleanup & Complete Documentation Alignment
-* **Date**: September 2, 2026
-* **Status**: 🟢 Completed
-* **Activity**:
-  * **Process Started**: Conducted codebase-wide audit for unused methods, exports, dead code, and documentation synchronization.
-  * **Unused Code Removed**:
-    * Removed unused static `ImageLoader.loadFromUrl` method from `src/core/image/ImageLoader.js`.
-  * **Documentation Synchronized**:
-    * Updated `WEBSITE_DEVELOPMENT_TRACKER.md`, `docs/ARCHITECTURE.md`, and `docs/FINAL_QA_REPORT.md` to reflect exact verified metrics.
-    * Synchronized test counts across all 14 test files (99 / 99 tests passing).
-    * Synchronized production build module counts (38 modules compiled cleanly).
-  * **Verification Results**:
-    * Automated test suite (`npx vitest run`): **99 / 99 tests passing across 14 test files**.
-    * Production build (`npx vite build`): **38 modules transformed, 0 errors, 0 warnings**.
-  * **Process Completed**: Code and documentation 100% synchronized.
-
-### [Log Entry 023] — Mosaic Multi-Strategy Pixel Art Vectorization System
-* **Date**: September 2, 2026
-* **Status**: 🟢 Completed
-* **Activity**:
-  * **Process Started**: Expanded Mosaic Engine with an additive Multi-Strategy Pixel Art Vectorization architecture conforming strictly to the Multi-Strategy Pixel Art Vectorization architecture.
-  * **Modules Implemented**:
-    1. `SpriteIslandEngine.js`: Multi-Sprite Island Grid (`island-grid`) with 8-connected component segmentation, local bounding box calculation, and local X/Y phase alignment.
-    2. `OrthogonalContourEngine.js`: Direct Orthogonal Contour (`orthogonal-contour`) with 4-connected Manhattan contour tracing and collinear segment merging.
-    3. `AdaptiveQuadtreeEngine.js`: Adaptive Quadtree (`adaptive-quadtree`) with recursive spatial decomposition down to 1px detail preservation.
-    4. `PixelArtResampler.js`: Native Integer Resampler (`integer-resample`) with run-length scale detection and core center sampling.
-    5. `MosaicStrategyDetector.js`: Auto Detect recommendation engine (`auto-detect`) displaying badge guidance without silent manual overrides.
-  * **UI & Integration**:
-    * Added `#msMosaicStrategySelect` and recommendation badge `#msStrategyRecBadge` in `index.html` and `src/styles/index.css`.
-    * Wired state and event listeners in `src/main.js` and strategy router in `MosaicEngine.js`.
-  * **Verification Results**:
-    * Automated test suite (`npx vitest run`): **105 / 105 tests passing across 15 test files**.
-    * Production build (`npx vite build`): **43 modules transformed cleanly, 0 errors**.
-  * **Process Completed**: Task verified and marked 🟢 COMPLETED.
+---
 
 ### [Log Entry 024] — Mosaic Multi-Strategy Canvas Rendering & Pipeline Integration Fix
 * **Date**: September 2, 2026
@@ -764,6 +445,8 @@ A running log capturing active engineering starts, process changes, and completi
     * Production build (`npx vite build`): **43 modules transformed cleanly, 0 errors**.
   * **Process Completed**: Task verified and marked 🟢 COMPLETED.
 
+---
+
 ### [Log Entry 025] — Mosaic Multi-Strategy Quality Enhancement & Visible Differentiation
 * **Date**: September 2, 2026
 * **Status**: 🟢 Completed
@@ -778,6 +461,9 @@ A running log capturing active engineering starts, process changes, and completi
     * Automated test suite (`npx vitest run`): **105 / 105 tests passing across 15 test files**.
     * Production build (`npx vite build`): **43 modules transformed cleanly, 0 errors**.
   * **Process Completed**: Task verified and marked 🟢 COMPLETED.
+
+---
+
 ### [Log Entry 026] — Pixel Art Export Document Size Synchronization Fix
 * **Date**: September 5, 2026
 * **Status**: 🟢 Completed
@@ -792,6 +478,8 @@ A running log capturing active engineering starts, process changes, and completi
     * Production build (`npm run build`): **44 modules transformed cleanly, 0 errors**.
   * **Process Completed**: Task verified and marked 🟢 COMPLETED.
 
+---
+
 ### [Log Entry 027] — Pixel Art Default Grid Resolution Update to 512×512
 * **Date**: September 5, 2026
 * **Status**: 🟢 Completed
@@ -805,6 +493,8 @@ A running log capturing active engineering starts, process changes, and completi
     * Automated test suite (`npx vitest run`): **112 / 112 tests passing across 16 test files**.
     * Production build (`npm run build`): **44 modules transformed cleanly, 0 errors**.
   * **Process Completed**: Task verified and marked 🟢 COMPLETED.
+
+---
 
 ### [Log Entry 028] — Root Markdown Cleanup & Documentation Structure Verification
 * **Date**: September 5, 2026
@@ -825,6 +515,8 @@ A running log capturing active engineering starts, process changes, and completi
     * Production build (`npm run build`): **44 modules transformed cleanly, 0 errors**.
   * **Process Completed**: Task verified and marked 🟢 COMPLETED.
 
+---
+
 ### [Log Entry 029] — Complete Codebase Audit, Unused Code Purge & Documentation Alignment
 * **Date**: September 7, 2026
 * **Status**: 🟢 Completed
@@ -833,13 +525,15 @@ A running log capturing active engineering starts, process changes, and completi
     * Purged unused imports (`RandomFlowEngine`, `HalftoneEngine`, `BackgroundClassifier`, `BackgroundRemover`, `oklabDistance`, `MosaicTrim`, `CellModel`, `CellBoundaryState`, `CellCornerState`, `IntegrityEngine`) across test files.
     * Removed unused variable declarations (`boundaryMap`, `result`) and unused array destructuring parameters (`[, count]`).
   * **Documentation Synchronized**:
-    * Audited all repository `.md` files (`WEBSITE_DEVELOPMENT_TRACKER.md`, `Master PRD`, `docs/ARCHITECTURE.md`, `docs/FINAL_QA_REPORT.md`, `docs/PIXEL_ART_ENGINE.md`, `docs/SVG_EXPORT.md`, `docs/AI_AGENT_WEBSITE_ENGINEERING_PROCESS.md`).
+    * Audited the repository Markdown files available at that time.
     * Aligned overall status, metrics, build output (44 modules), and test results (112 / 112 passing across 16 test files).
   * **Verification Results**:
     * Automated test suite (`npx vitest run`): **112 / 112 tests passing across 16 test files**.
     * Static Linter (`npx oxlint`): **0 errors, 0 unused imports/variables**.
     * Production build (`npm run build`): **44 modules transformed cleanly, 0 errors**.
   * **Process Completed**: Task verified and marked 🟢 COMPLETED.
+
+---
 
 ### [Log Entry 030] — Unused Code, Dead Exports, Orphaned CSS Purge & Markdown Alignment
 * **Date**: September 8, 2026
@@ -851,9 +545,9 @@ A running log capturing active engineering starts, process changes, and completi
     * Removed uncalled dead methods `setMosaicBgRemovalScope` and `resetMosaicCleanup` in `src/main.js`.
     * Removed 144 lines of orphaned legacy CSS classes (`.tolerance-*`, `.preset-pill-btn`, `.btn-eyedropper`, `@keyframes pulsePicker`, `.control-hint`) in `src/styles/index.css`.
   * **Documentation Cleaned & Synchronized**:
-    * Audited all `.md` markdown files across the repository (`docs/PIXEL_ART_ENGINE.md`, `docs/AI_AGENT_WEBSITE_ENGINEERING_PROCESS.md`, `docs/ARCHITECTURE.md`, `docs/FINAL_QA_REPORT.md`, `docs/SVG_EXPORT.md`, `Master PRD`, `WEBSITE_DEVELOPMENT_TRACKER.md`).
+    * Audited the repository Markdown files available at that time.
     * Aligned bundle size metrics in `ARCHITECTURE.md` (CSS reduced to 25.24 kB, JS to 195.38 kB).
-    * Updated `PIXEL_ART_ENGINE.md` standalone exports list.
+    * Updated the former standalone Pixel Art engine export reference.
     * Removed references to non-existent legacy sprint markdown files.
   * **Verification Results**:
     * Automated test suite (`npx vitest run`): **112 / 112 tests passing across 16 test files**.
@@ -861,6 +555,8 @@ A running log capturing active engineering starts, process changes, and completi
     * Static Linter (`npx oxlint`): **0 errors**.
     * Production build (`npm run build`): **44 modules transformed cleanly, 0 errors**.
   * **Process Completed**: Task verified and marked 🟢 COMPLETED.
+
+---
 
 ### [Log Entry 031] — Complete Removal of Obsolete Mosaic "Pixel Grid Alignment" Feature
 * **Date**: September 9, 2026
@@ -929,7 +625,6 @@ A running log capturing active engineering starts, process changes, and completi
   - `src/main.js`
   - `docs/FINAL_QA_REPORT.md`
   - `docs/ARCHITECTURE.md`
-  - `docs/PIXEL_ART_ENGINE.md`
   - `WEBSITE_DEVELOPMENT_TRACKER.md`
 * **Acceptance Criteria**:
   1. ESLint validation passes with 0 errors and 0 warnings across all JS source files (Verified).
@@ -946,10 +641,10 @@ A running log capturing active engineering starts, process changes, and completi
   2. **Documentation Alignments**:
      - Updated `docs/FINAL_QA_REPORT.md` with 137/137 test matrix (18 test files), 52 build modules, and cleaned feature table.
      - Updated `docs/ARCHITECTURE.md` test matrix and build module statistics.
-     - Corrected utility export locations in `docs/PIXEL_ART_ENGINE.md`.
+     - Corrected utility export locations in the former standalone Pixel Art engine reference.
      - Recorded Log Entry 032 in `WEBSITE_DEVELOPMENT_TRACKER.md`.
 * **Verification Evidence**:
-  - ESLint: `npx eslint -c scratch/eslint.config.mjs "src/**/*.js"` -> 0 errors, 0 warnings.
+  - Historical ESLint run with a temporary configuration: 0 errors, 0 warnings.
   - Test Suite: `npm test` -> 18 test files passed, 137 / 137 tests passed.
   - Production Build: `npm run build` -> 52 modules transformed, dist output generated with 0 errors.
 * **Regression Result**: Zero regressions across all 7 creative engines, export pipeline, responsive layout, and documentation.
@@ -992,12 +687,12 @@ A running log capturing active engineering starts, process changes, and completi
      - Updated status dashboard to 140/140 tests passing across 19 test files.
      - Recorded Log Entry 033 in `WEBSITE_DEVELOPMENT_TRACKER.md`.
 * **Verification Evidence**:
-  - ESLint: `npx eslint -c scratch/eslint.config.mjs "src/**/*.js" "test/**/*.js"` -> 0 errors, 0 warnings.
+  - Historical ESLint run with a temporary configuration: 0 errors, 0 warnings.
   - Test Suite: `npm test` -> 19 test files passed, 140 / 140 tests passed in 2.84s.
   - Production Build: `npm run build` -> 52 modules transformed cleanly, dist generated in 906ms with 0 errors.
 * **Regression Result**: Zero regressions across all 7 creative engines, export pipelines, and responsive layout.
 * **Process Completed**: Task verified and marked 🟢 COMPLETED.
- 
+
 ---
 
 ### [Log Entry 034] — Dual-Mode Mosaic Features (Normal Image vs. Already Pixel Art)
@@ -1169,8 +864,24 @@ A running log capturing active engineering starts, process changes, and completi
 * **Regression Result**: Zero regressions across all creative engines, export pipeline, and responsive UI layout.
 * **Process Completed**: Task verified and marked 🟢 COMPLETED.
 
+---
 
+### [Log Entry 042] — Unused Code Cleanup
+* **Date**: September 20, 2026
+* **Changes**: Removed five unused Mosaic container lookups, four lookups for absent detection/confirmation controls, and their unreachable banner updates and listeners from src/main.js.
+* Removed four helpers with no application or test callers: PencilEngine.addStroke, addShape, addText, and PixelGrid.setPixelColor. Existing rendering, history, and palette-index editing paths remain unchanged.
+* Updated the obsolete confirmation-handler test to check the visible Mosaic mode controls.
+* **Audit**: Checked imports, method callers, DOM references, module reachability, and CSS class references. Retained modules used by tests and engines/settings supported by saved projects. No HTML, CSS, or processing-algorithm changes.
+* **Verification**: Before and after cleanup: 21 test files, **152/152 tests passed**. Production build: **52 modules**, completed successfully. ESLint unused-variable, unreachable-code, and constant-condition checks: **73 JavaScript files, 0 findings**.
+* **Limit**: Automated checks only; no interactive browser verification performed.
 
+---
 
+### [Log Entry 043] — Markdown Audit and Obsolete Documentation Cleanup
 
-
+* **Date**: September 20, 2026.
+* **Scope**: All seven project-owned Markdown files; dependency and build directories excluded.
+* **Changes**: Removed obsolete implementation phases, absent-file inventories, unimplemented roadmap items, removed-control instructions, duplicate history entries, and unsupported blanket completion claims. Corrected local links, current mode descriptions, export coverage, and recorded test counts.
+* **Preserved**: All seven documents still describe this project; no whole document needed deletion. Unique historical records remain explicitly labeled as history.
+* **Verification**: Checked local Markdown links and file references, and compared SHA-256 hashes for tracked non-Markdown files against the start of this task. No application, test, configuration, or feature changes were made in this pass.
+* **Tests/build**: Not rerun for documentation-only edits; the latest executed results remain those recorded above.

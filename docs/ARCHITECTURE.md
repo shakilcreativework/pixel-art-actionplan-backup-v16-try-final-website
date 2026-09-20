@@ -11,7 +11,7 @@ Built with vanilla HTML, JavaScript (ES Modules), and CSS. Bundled with Vite.
 | Item | Detail |
 |---|---|
 | Bundler | Vite 5.4 |
-| Test runner | Vitest 2.0 |
+| Test runner | Vitest 2.x |
 | Language | JavaScript ES Modules (no framework) |
 | Styling | Vanilla CSS (`src/styles/index.css`) |
 | Entry | `src/main.js` |
@@ -24,32 +24,17 @@ Built with vanilla HTML, JavaScript (ES Modules), and CSS. Bundled with Vite.
 The **Pixel Art engine is 100% independent** from all other generative engines.
 It does not share geometry, dot-radius, or variable-size logic with Halftone or Mosaic.
 
-```
-                              Image Source
-                                   |
-                          ImageLoader / DocumentManager
-                                   |
-     +-----------+-----------+-----------+-----------+-----------+-----------+
-     |           |           |           |           |           |           |
-     v           v           v           v           v           v           v
- Pixel Art   Halftone    Line Art   Random Flow  Camo Mesh   Mosaic     Pencil
-  Engine      Engine      Engine      Engine      Engine     Engine     Engine
-     |           |           |           |           |           |           |
-     v           v           v           v           v           v           v
- PixelGrid   Dot Geom   Line Geom  Vector Paths Voronoi   Tile Polys  Strokes
-     |           |           |           |           |           |           |
-     +-----+-----+-----------+-----------+-----------+-----------+-----+-----+
-           |                                                           |
-           v                                                           v
-       Crisp PNG                                               True Vector SVG
-      (PngExporter)                                            (SvgExporter)
-```
+ImageLoader and DocumentManager prepare input for the selected engine. Pixel Art produces a PixelGrid; other modes render their results to canvas. PNG/JPEG export uses the grid or output canvas.
+
+SVG export has application branches for Pixel Art, Halftone, Random Flow, and Mosaic. Line Art, Camo Mesh, and Pencil do not have dedicated SVG branches in the current export handler.
+
+Only Pixel Art is processed through a dedicated Web Worker. Other engines run synchronously in main.js.
 
 ---
 
 ## Source File Map
 
-Every file listed below exists in the repository as of September 11, 2026.
+Every file listed below exists in the repository as of September 20, 2026. The Mosaic UI offers Normal Image and Already Pixel Art; Normal Image exposes Default Pixel Art and Contrast-Aware Ridge & Silhouette. Other strategy modules remain available internally and in tests.
 
 ### `src/`
 
@@ -64,7 +49,7 @@ Every file listed below exists in the repository as of September 11, 2026.
 
 | File | Purpose |
 |---|---|
-| `ImageLoader.js` | File validation, decode to `ImageBitmap`, EXIF orientation normalization |
+| `ImageLoader.js` | File validation, HTMLImageElement decode, canvas RGBA extraction, and downscaling above 4096 pixels |
 
 ---
 
@@ -99,7 +84,7 @@ Every file listed below exists in the repository as of September 11, 2026.
 | `HardEdgeBackgroundRemover.js` | Pathway B (B4) | Outer perimeter BFS flood fill with zero transitional fringe purification |
 | `IslandSeparator.js` | Pathway B (B5) | 8-connected island segmentation and 1-cell thin feature preservation |
 | `MosaicCleanupEngine.js` | Stage 6 (Quality) | Non-destructive 100% pixel cleanup engine detecting outside floating noise & internal noise |
-| `MosaicVerificationEngine.js` | Stage 7 (Quality) | 5-check quality verification engine enforcing 100% CLEAN status gate |
+| `MosaicVerificationEngine.js` | Stage 7 (Quality) | Seven supported check keys; clean status reflects enabled checks and the active pathway |
 | `MosaicDesignDetector.js` | Edge Intelligence | 8-connected component segmentation for individual design object detection |
 | `MosaicBoundaryAnalyzer.js` | Edge Intelligence | Perimeter edge-by-edge contour analyzer across top, bottom, left, and right boundaries |
 | `SpriteIslandEngine.js` | Strategy Engine | Multi-Sprite Island Grid connected component segmentation and local bounding box reconstruction |
@@ -111,10 +96,10 @@ Every file listed below exists in the repository as of September 11, 2026.
 | `MosaicStrategyDetector.js` | Strategy Engine | Artwork analysis engine recommending optimal vectorization strategy |
 | `CellModel.js` | Support | Cell data model and world-coordinate mapping |
 | `DocumentColorExtractor.js` | Support | Dominant color extraction from processed mosaic tile output |
-| `MosaicTrim.js` | Support | Morphological edge trim / choke slider: erosion/dilation −2 px to +2 px |
+| `MosaicTrim.js` | Support | Cell-level morphological trimming and boundary protection |
 | `TopologyGuard.js` | Support | Connectivity and topology integrity enforcement |
 | `IntegrityEngine.js` | Support | Post-render integrity validation and artifact detection |
-| `PixelGridDetector.js` | Support | Native grid detection and 1:1 cell size lock |
+| `PixelGridDetector.js` | Support | Native grid/phase detector retained by tests; not imported by the application |
 
 ---
 
@@ -122,7 +107,7 @@ Every file listed below exists in the repository as of September 11, 2026.
 
 | File | Purpose |
 |---|---|
-| `HalftoneEngine.js` | Halftone dot rasterization — Square, Hexagonal, Radial grids; Circle, Square, Diamond, Ellipse, Triangle, Cross dot geometries; variable dot radius, rotation, spacing, strength, hollow |
+| `HalftoneEngine.js` | Halftone dot rasterization — Square, Hexagonal, Radial grids; Circle, Square, Diamond, Ellipse, Triangle, Cross canvas geometries; radius, grid angle/spacing, gamma, hollow |
 
 ---
 
@@ -154,7 +139,7 @@ Every file listed below exists in the repository as of September 11, 2026.
 
 | File | Purpose |
 |---|---|
-| `PencilEngine.js` | Freehand strokes, shape/icon insertion, text annotation, line thickness, color picker |
+| `PencilEngine.js` | Element rendering, undo, clear, and resize; current Pencil-mode UI has no stroke/shape/text creation wiring |
 
 ---
 
@@ -171,7 +156,7 @@ Every file listed below exists in the repository as of September 11, 2026.
 
 | File | Purpose |
 |---|---|
-| `AutoFitStockEngine.js` | Zero-crop aspect-ratio locked resolution scaling engine to meet ≥ 4.0 MP microstock threshold |
+| `AutoFitStockEngine.js` | Aspect-preserving dimension scaling toward the application’s configured 4.0 MP target |
 | `MarketplaceSafeCheck.js` | Boundary validation and transparency compliance for stock-platform submission |
 
 ---
@@ -182,7 +167,7 @@ Every file listed below exists in the repository as of September 11, 2026.
 |---|---|
 | `SvgExporter.js` | True vector SVG — 4 modes: Editable (1 `<rect>` per cell), Optimized (horizontal RLE merge), Grouped-by-color (`<g fill>` layers), Objects (grouped by connected island); also exports Halftone (`<circle>`, `<rect>`, `<polygon>`), Random Flow (`<path>`), and Mosaic (5 tile shapes as native SVG primitives); zero raster `<image>` tags |
 | `PngExporter.js` | Nearest-neighbor sharp PNG upscaling — 1×, 2×, 4×, 8×, custom |
-| `ProjectManager.js` | `.pixelart` JSON project save / load — preserves grid, palette, settings, zoom |
+| `ProjectManager.js` | Version-2 `.pixelart` JSON stores grid, palette, document/background and engine settings; no source image, zoom, or undo history |
 
 ---
 
@@ -196,6 +181,8 @@ Every file listed below exists in the repository as of September 11, 2026.
 
 ## Test Suite
 
+Recorded after code cleanup on September 20, 2026. No tests were rerun for this Markdown-only update.
+
 | Test File | Tests | Status |
 |---|:---:|:---:|
 | `test/pixel-art.test.js` | 15 | 🟢 PASS |
@@ -205,30 +192,26 @@ Every file listed below exists in the repository as of September 11, 2026.
 | `test/mosaic-pixel-perfect-preservation.test.js` | 12 | 🟢 PASS |
 | `test/mosaic-trim.test.js` | 10 | 🟢 PASS |
 | `test/document-and-background.test.js` | 13 | 🟢 PASS |
-| `test/responsive-layout.test.js` | 8 | 🟢 PASS |
+| `test/responsive-layout.test.js` | 11 | 🟢 PASS |
 | `test/document-color-extractor.test.js` | 3 | 🟢 PASS |
 | `test/mosaic-cleanup-verification.test.js` | 5 | 🟢 PASS |
 | `test/mosaic-edge-intelligence.test.js` | 5 | 🟢 PASS |
 | `test/clean-edge-purifier-preservation.test.js` | 2 | 🟢 PASS |
 | `test/document-color-controls.test.js` | 5 | 🟢 PASS |
 | `test/mosaic-boundary-fringe-purifier.test.js` | 1 | 🟢 PASS |
-| `test/auto-fit-stock.test.js` | 6 | 🟢 PASS |
+| `test/auto-fit-stock.test.js` | 8 | 🟢 PASS |
 | `test/mosaic-multi-strategy.test.js` | 6 | 🟢 PASS |
 | `test/mosaic-strategies-and-sampling.test.js` | 12 | 🟢 PASS |
 | `test/mosaic-v2-pure-pixel-pipeline.test.js` | 13 | 🟢 PASS |
 | `test/mosaic-quality-verification-toggle.test.js` | 3 | 🟢 PASS |
 | `test/mosaic-pixel-diff.test.js` | 2 | 🟢 PASS |
 | `test/mosaic-manual-paint-overrides.test.js` | 1 | 🟢 PASS |
-| **Total** | **147 / 147** | **🟢 100% PASS** |
+| **Total** | **152 / 152** | **🟢 100% PASS** |
 
 ---
 
 ## Build Output
 
-```
-dist/index.html                          89.32 kB │ gzip: 15.74 kB
-dist/assets/index-*.css                  25.24 kB │ gzip:  5.46 kB
-dist/assets/index-*.js                  214.37 kB │ gzip: 61.15 kB
-dist/assets/PixelArtWorker-*.js          14.30 kB
-52 modules — 0 errors — 0 warnings — built in ~0.9s
-```
+The September 20, 2026 code-cleanup build succeeded with 52 transformed modules. Generated assets live in `dist/`; bundle sizes and hash filenames change with builds.
+
+See [QA report](FINAL_QA_REPORT.md) for verification scope and [SVG export](SVG_EXPORT.md) for format limitations.

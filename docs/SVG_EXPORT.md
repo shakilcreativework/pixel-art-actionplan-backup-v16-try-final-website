@@ -1,6 +1,7 @@
 # SVG Vector Export
 
-**Location**: `src/core/export/SvgExporter.js`  
+**Location**: [SvgExporter.js](../src/core/export/SvgExporter.js)
+
 **Exports**: `SvgExporter` (static methods)
 
 ---
@@ -39,7 +40,7 @@ Exports halftone dot geometry. Dot shapes map to SVG primitives:
 | square | `<rect x y width height>` |
 | diamond | `<polygon points>` |
 
-Supports `hollow: true` — renders `fill="none"` + `stroke` instead of solid fill.
+Supports `hollow: true` — renders `fill="none"` + `stroke` instead of solid fill. Other Halftone canvas shapes currently use the circle fallback in SVG export.
 
 ---
 
@@ -62,18 +63,23 @@ Exports Mosaic tile geometry. Tile shapes map to SVG primitives:
 | diamond | `<polygon points>` |
 | hexagon | `<polygon points>` (6-vertex) |
 
-Rotation applied via `transform="rotate(deg cx cy)"` on each element.  
-Default mode for Mosaic is `grouped` — tiles grouped by color under `<g fill>` layers.
+For grid results, this method delegates to [MosaicEngine.exportSVG](../src/core/mosaic/MosaicEngine.js). The application calls that method directly. Rotation and vector shape generation are handled there; the default engine export mode is `grouped`.
+
+Mosaic adds `shape-rendering="crispEdges"` for unrotated square tiles. Other shapes and rotations do not receive that attribute.
 
 ---
 
 ## Dimensions
 
-Output SVG dimensions match the selected artboard exactly.
+The application passes `targetWidth` and `targetHeight` to Pixel Art export. When calling it directly without these options, dimensions use `options.pixelSize` (default 10) multiplied by grid dimensions. Halftone, Random Flow, and Mosaic exporters use the processed result dimensions.
 
 ```xml
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1"
      viewBox="0 0 W H" width="W" height="H" shape-rendering="crispEdges">
 ```
 
-No unexpected scaling or aspect-ratio distortion.
+Choose target dimensions that preserve the desired aspect ratio. Custom dimensions can change cell proportions.
+
+## Application coverage
+
+The current export handler has SVG branches for Pixel Art, Halftone, Random Flow, and Mosaic. It does not implement SVG conversion for Line Art, Camo Mesh, or Pencil. PNG/JPEG use the separate raster exporter.

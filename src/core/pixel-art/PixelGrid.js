@@ -52,28 +52,6 @@ export class PixelGrid {
   }
 
   /**
-   * Set pixel using RGBA values (adds to or finds in palette).
-   */
-  setPixelColor(x, y, r, g, b, a = 255) {
-    const idx = this.getIndex(x, y);
-    if (idx === -1) return false;
-
-    // Find closest or matching color in palette
-    let palIdx = this.palette.findIndex(
-      col => col[0] === r && col[1] === g && col[2] === b
-    );
-
-    if (palIdx === -1) {
-      palIdx = this.palette.length;
-      this.palette.push([r, g, b, 255]);
-    }
-
-    this.indexes[idx] = palIdx;
-    this.alpha[idx] = a;
-    return true;
-  }
-
-  /**
    * Clone the current PixelGrid.
    */
   clone() {

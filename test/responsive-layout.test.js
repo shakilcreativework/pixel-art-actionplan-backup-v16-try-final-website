@@ -75,9 +75,13 @@ describe('Responsive Layout & Markup Audit', () => {
     expect(main).toContain('this.docManager.setCustomSize(width, height)');
   });
 
-  it('registers one canonical handler for each Mosaic mode confirmation control', () => {
-    expect(main.match(/msConfirmPixelArtBtn\.addEventListener/g)).toHaveLength(1);
-    expect(main.match(/msOverridePhotoBtn\.addEventListener/g)).toHaveLength(1);
+  it('wires the visible Mosaic feature mode controls', () => {
+    expect(html).toContain('id="msInputModePhotoBtn"');
+    expect(html).toContain('id="msInputModePixelArtBtn"');
+    expect(main).toContain("document.querySelectorAll('#msInputModeGroup .filter-pill-btn')");
+    expect(main.match(/msInputModeButtons\?\.forEach\(btn => \{\s*btn\.addEventListener\('click'/g)).toHaveLength(1);
+    expect(main).toContain("btn.getAttribute('data-input-mode')");
+    expect(main).toContain('this.setMosaicInputMode(mode)');
   });
 
   it('keeps the Mosaic reset path free of stale controller calls', () => {

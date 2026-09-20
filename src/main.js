@@ -357,26 +357,21 @@ class App {
       msStrategyDesc: document.getElementById('msStrategyDesc'),
       msStrategyRecBadge: document.getElementById('msStrategyRecBadge'),
       msStrategyControls: document.getElementById('msStrategyControls'),
-      msCtrlIslandGrid: document.getElementById('msCtrlIslandGrid'),
       msIslandSizeSlider: document.getElementById('msIslandSizeSlider'),
       msIslandSizeVal: document.getElementById('msIslandSizeVal'),
       msIslandProxSlider: document.getElementById('msIslandProxSlider'),
       msIslandProxVal: document.getElementById('msIslandProxVal'),
-      msCtrlOrthogonal: document.getElementById('msCtrlOrthogonal'),
       msOrthogonalCollinearToggle: document.getElementById('msOrthogonalCollinearToggle'),
-      msCtrlQuadtree: document.getElementById('msCtrlQuadtree'),
       msQuadtreeMinSelect: document.getElementById('msQuadtreeMinSelect'),
       msQuadtreeMinVal: document.getElementById('msQuadtreeMinVal'),
       msQuadtreeVarSlider: document.getElementById('msQuadtreeVarSlider'),
       msQuadtreeVarVal: document.getElementById('msQuadtreeVarVal'),
-      msCtrlResampler: document.getElementById('msCtrlResampler'),
       msResamplerScaleSelect: document.getElementById('msResamplerScaleSelect'),
       msCtrlContrastEdge: document.getElementById('msCtrlContrastEdge'),
       msContrastEdgeSensSlider: document.getElementById('msContrastEdgeSensSlider'),
       msContrastEdgeSensVal: document.getElementById('msContrastEdgeSensVal'),
       msContrastEdgeSharpSlider: document.getElementById('msContrastEdgeSharpSlider'),
       msContrastEdgeSharpVal: document.getElementById('msContrastEdgeSharpVal'),
-      msCtrlIsolineBanded: document.getElementById('msCtrlIsolineBanded'),
       msIsolineBandsSlider: document.getElementById('msIsolineBandsSlider'),
       msIsolineBandsVal: document.getElementById('msIsolineBandsVal'),
       msSourceModeBadge: document.getElementById('msSourceModeBadge'),
@@ -441,10 +436,6 @@ class App {
       msCheckGridAlignment: document.getElementById('msCheckGridAlignment'),
       msCheckDesignBoundaries: document.getElementById('msCheckDesignBoundaries'),
       msInputModeButtons: document.querySelectorAll('#msInputModeGroup .filter-pill-btn'),
-      msDetectionBanner: document.getElementById('msDetectionBanner'),
-      msDetectionText: document.getElementById('msDetectionText'),
-      msConfirmPixelArtBtn: document.getElementById('msConfirmPixelArtBtn'),
-      msOverridePhotoBtn: document.getElementById('msOverridePhotoBtn'),
       msResetAllBtn: document.getElementById('msResetAllBtn'),
 
       panToolBtn: document.getElementById('panToolBtn'),
@@ -849,21 +840,6 @@ class App {
       this.renderMosaicDocColors();
       this.renderMosaicActivePaletteSwatches();
       this.updateMosaicVerificationUI(res.verificationReport);
-
-      // Mosaic v2 Input Mode & Detection Banner Update
-      if (res.classification && this.el.msDetectionBanner) {
-        if (this.state.mosaic.inputMode === 'auto') {
-          this.el.msDetectionBanner.style.display = 'block';
-          if (this.el.msDetectionText) {
-            const isPa = res.classification.mode === 'pixel-art';
-            this.el.msDetectionText.textContent = `⚡ ${isPa ? 'Pure Pixel Art Detected' : 'Photo Detected'} — ${res.classification.detectedCellSize}×${res.classification.detectedCellSize} grid, ${res.classification.uniqueColors} colors, ${res.classification.hasAntiAliasing ? 'anti-aliased' : 'zero anti-aliasing'} (${Math.round(res.classification.confidence * 100)}% confidence)`;
-          }
-        } else {
-          this.el.msDetectionBanner.style.display = 'none';
-        }
-      } else if (this.el.msDetectionBanner) {
-        this.el.msDetectionBanner.style.display = 'none';
-      }
 
       this.updateMosaicModeUI(this.state.mosaic.inputMode, res.pathway);
 
@@ -1618,7 +1594,7 @@ class App {
       });
     }
 
-    // Mosaic Feature Mode (Normal Image vs Already Pixel Art + Auto-Detect)
+    // Mosaic Feature Mode (Normal Image vs Already Pixel Art)
     this.el.msInputModeButtons?.forEach(btn => {
       btn.addEventListener('click', () => {
         const mode = btn.getAttribute('data-input-mode');
@@ -1627,20 +1603,6 @@ class App {
         }
       });
     });
-
-    if (this.el.msConfirmPixelArtBtn) {
-      this.el.msConfirmPixelArtBtn.addEventListener('click', () => {
-        this.setMosaicInputMode('pixel-art');
-      });
-    }
-
-    if (this.el.msOverridePhotoBtn) {
-      this.el.msOverridePhotoBtn.addEventListener('click', () => {
-        this.setMosaicInputMode('photo');
-      });
-    }
-
-
 
     // Mosaic Background Removal Filter Pill buttons
     this.el.msBgModeButtons?.forEach(btn => {

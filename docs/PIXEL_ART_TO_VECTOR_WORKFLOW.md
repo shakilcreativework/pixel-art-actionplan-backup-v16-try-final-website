@@ -1,126 +1,51 @@
-# Pixel Art & Mosaic Master Vector (SVG) Conversion Guide
+# Pixel Art and Mosaic SVG Conversion Workflow
 
-> **Specification & Quality Benchmark**: Designed for **Pixel Art** and **Geometric Mosaic** modes following [`Pixel_Art_Master_Prompt.txt`](file:///c:/Projects/pixel-art-actionplan%20-%20backup%20v16%20try%20final%20website/Pixel_Art_Master_Prompt.txt) and [`Mosaic_Engine_PRD_v2_Dual_Input_System.md`](file:///c:/Projects/pixel-art-actionplan%20-%20backup%20v16%20try%20final%20website/docs/Mosaic_Engine_PRD_v2_Dual_Input_System.md).
+Reviewed against the current application on September 20, 2026.
 
----
+## Choose the workflow
 
-## 1. Overview: Dual Vector Engine System
+| Input and purpose | Workflow |
+|---|---|
+| Generate a reduced pixel grid from an image | Pixel Art |
+| Apply geometric tiles and photographic sampling | Mosaic → Normal Image |
+| Convert an existing pixel grid without blended sampling | Mosaic → Already Pixel Art |
 
-The **Pixel & Vector Creative Suite** supports two dedicated vectorization engines:
-1. **Pixel Art Engine**: Direct Cell Extraction for standard pixel matrices ($8\times8$, $16\times16$, $32\times32$, $64\times64$).
-2. **Mosaic Engine**: Geometric Tile Grid Construction for staggered shapes (**Square**, **Circle**, **Triangle**, **Diamond**, **Hexagon**).
+Pixel Art's Original Colors setting retains sampled colors without palette reduction. It does not force exact center sampling or guarantee source-pixel parity.
 
-Both engines export **100% true vector SVG graphics** with zero raster embedded images, crisp edge rendering, and 1-click color layer grouping.
+## Pixel Art
 
----
+Upload an image, choose Pixel Art, and set the grid resolution, sampling, palette, and dithering. The application defaults to a grid width of 512 and derives height from the source aspect ratio.
 
-## 2. Part A: Pixel Art Direct Grid-Cell Extraction Workflow
+Use the floating tools for pencil, eraser, fill, eyedropper, rectangle, and line edits. Export the processed PixelGrid with the desired SVG mode and document dimensions.
 
-When source artwork is **already designed as pixel art**:
-* Select target grid dimension: **$8\times 8\text{ px}$**, **$16\times 16\text{ px}$**, **$32\times 32\text{ px}$**, or **$64\times 64\text{ px}$**.
-* Center-pixel sampling extracts the **100% exact original color** of each cell (`colorMode: 'original'`).
-* Merges adjacent matching row cells into clean horizontal SVG `<rect>` shapes grouped by color hex code.
+The engine is [PixelArtEngine.js](../src/core/pixel-art/PixelArtEngine.js); SVG conversion uses [SvgExporter.js](../src/core/export/SvgExporter.js).
 
-| Selected Grid Size | Resolution | Best Use Case | Extraction Mode |
-| :--- | :--- | :--- | :--- |
-| **8 × 8 px** | Micro Grid | Micro-details, bitmap glyphs, status icons | Direct 1:1 Cell Extraction |
-| **16 × 16 px** | Standard Grid | Primary icons, badges, item sprites | Direct 1:1 Cell Extraction |
-| **32 × 32 px** | Medium Grid | App windows, detailed items, compound containers | Direct 1:1 Cell Extraction |
-| **64 × 64 px** | High-Detail Grid | Detailed character sprites, hero frames | Direct 1:1 Cell Extraction |
+## Mosaic — Normal Image
 
----
+Choose Normal Image for photographic or continuous-tone input. The visible strategies are Default Pixel Art and Contrast-Aware Ridge & Silhouette.
 
-## 3. Part B: Mosaic Engine Vector Workflow & Tile Features
+Set tile size, shape, spacing, rotation, sampling, palette, and dithering as needed. Background removal defaults to None (Keep All). White, black, and picked-color removal are optional.
 
-The **Mosaic Engine** converts artwork into structured geometric tile matrices with cell-level trimming and 100% boundary cell preservation.
+## Mosaic — Already Pixel Art
 
-### Supported Geometric Vector Tile Shapes:
-* ⏹️ **Square**: Solid grid cells using clamped `<rect x="..." y="..." width="..." height="..." />`.
-* ⏺️ **Circle**: Smooth vector dots using `<circle cx="..." cy="..." r="..." />`.
-* 🔺 **Triangle**: 3-point directional polygons using `<polygon points="x1,y1 x2,y2 x3,y3" />`.
-* 🔶 **Diamond**: 4-point rotated polygons using `<polygon points="top right bottom left" />`.
-* ⬡ **Hexagon**: 6-point honeycombed polygons using `<polygon points="p1 p2 p3 p4 p5 p6" />`.
+Choose Already Pixel Art for existing pixel artwork. Set tile size to match the source grid. This pathway bypasses continuous shading, palette quantization, dithering, and morphological trim.
 
-### Mosaic Vector Pipeline:
-```
-[ Input Artwork / Source Image ]
-               │
-               ▼
-┌─────────────────────────────────────────────────────────────┐
-│ STEP 1: Multi-Mode Sampling & Continuous Shading            │
-│ • Sample tile colors via Perceptual, Dominant, or Median    │
-│ • Preserve continuous gradients & color transitions         │
-└────────────────────────┬────────────────────────────────────┘
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────────────┐
-│ STEP 2: Staggered Geometric Grid Construction               │
-│ • Construct tile grid with selected shape (Rect, Circle,    │
-│   Triangle, Diamond, Hexagon)                               │
-│ • Apply precise tile rotation, scale, and opacity           │
-└────────────────────────┬────────────────────────────────────┘
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────────────┐
-│ STEP 3: Background Removal & Cell-Level Mosaic Trim         │
-│ • Scope-aware background classifier removes background tiles │
-│ • Cell-level trim preserves subject boundaries & sharp edges│
-└────────────────────────┬────────────────────────────────────┘
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────────────┐
-│ STEP 4: True Vector SVG Export (`SvgExporter.exportMosaic`) │
-│ • Group tiles into `<g id="layer-color-XXXXXX">`            │
-│ • Default transparent background (`transparentBg: true`)     │
-└─────────────────────────────────────────────────────────────┘
-```
+For source-like geometry, use square tiles, zero spacing, and zero rotation. Keep background removal off unless removal is intended, and review enabled cleanup settings.
 
----
+Exact conversion depends on source alignment and dimensions. Incomplete edge cells are not sampled by ExactCellSampler, and mixed-cell inputs may lose detail even when no new colors are introduced. Inspect the preview and verification report.
 
-## 4. Codebase Engine Implementation Reference
+The current UI has no Auto-Detect mode button, confirmation banner, or X/Y grid-offset sliders. The engine retains programmatic detection and offset options.
 
-In your application, both workflows are powered by [`PixelArtEngine.js`](file:///c:/Projects/pixel-art-actionplan%20-%20backup%20v16%20try%20final%20website/src/core/pixel-art/PixelArtEngine.js), [`MosaicEngine.js`](file:///c:/Projects/pixel-art-actionplan%20-%20backup%20v16%20try%20final%20website/src/core/mosaic/MosaicEngine.js), and [`SvgExporter.js`](file:///c:/Projects/pixel-art-actionplan%20-%20backup%20v16%20try%20final%20website/src/core/export/SvgExporter.js):
+See [Mosaic dual-input reference](Mosaic_Engine_PRD_v2_Dual_Input_System.md) for the implementation.
 
-```javascript
-// =========================================================================
-// 1. Pixel Art Engine Vector Export
-// =========================================================================
-const pixelGrid = PixelArtEngine.process(sourceImage, {
-  gridWidth: 16,          // 8, 16, 32, or 64
-  gridHeight: 16,
-  colorMode: 'original',   // Preserve 100% exact original colors
-  samplingMethod: 'median'
-});
+## Export
 
-const pixelSvg = SvgExporter.exportPixelArt(pixelGrid, {
-  mode: 'grouped',
-  transparentBg: true
-});
+The export dialog offers editable cells, optimized geometry, color groups, and object groups. Pixel Art, Mosaic, Halftone, and Random Flow have SVG export branches.
 
-// =========================================================================
-// 2. Mosaic Engine Vector Export
-// =========================================================================
-const mosaicResult = MosaicEngine.process(sourceImage, {
-  tileSize: 16,
-  tileShape: 'square',    // 'square', 'circle', 'triangle', 'diamond', 'hexagon'
-  backgroundRemoval: true
-});
+SVG output uses vector primitives. PNG and JPEG use raster output; the dialog offers 1×, 2×, 4×, and 8× scaling.
 
-const mosaicSvg = SvgExporter.exportMosaic(mosaicResult, {
-  mode: 'grouped',
-  transparentBg: true
-});
-```
+See [SVG export reference](SVG_EXPORT.md) for method options and shape behavior, and the [QA report](FINAL_QA_REPORT.md) for tested scope. Fixture tests and the cleanup badge are not a universal pixel-parity guarantee.
 
----
+## Source-art guidelines
 
-## 5. ✅ 100% Quality Verification Checklist
-
-- [x] **Pixel Art Modes**: $8\times8$, $16\times16$, $32\times32$, and $64\times64$ grid cell options.
-- [x] **Mosaic Tile Shapes**: Full vector support for Square, Circle, Triangle, Diamond, and Hexagon shapes.
-- [x] **0 Mismatched Pixels**: 1:1 bitwise parity between input cells and SVG vector tiles.
-- [x] **Original Color Parity**: 100% color retention using `'original'` color mode.
-- [x] **Zero Mixels**: 100% scale consistency across all canvas elements.
-- [x] **Zero Anti-Aliasing**: Hard discrete borders with `shape-rendering="crispEdges"`.
-- [x] **1-Click Color Ungrouping**: Organized into `<g id="layer-color-XXXXXX">`.
-- [x] **Clean Seams**: 0px gap rendering artifacts between vector rectangles/polygons.
+[Pixel_Art_Master_Prompt.txt](../Pixel_Art_Master_Prompt.txt) contains the existing version-6 pixel-art generation guidelines.

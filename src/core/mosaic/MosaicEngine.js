@@ -684,6 +684,9 @@ export class MosaicEngine {
 
     const grid = sampleResult.grid;
     const sourcePalette = sampleResult.palette;
+    const edgePurifierReport = options.cleanEdgePurifier && options.cleanEdgeScope !== 'off'
+      ? CleanEdgePurifier.apply(grid, sourceImage, { ...options, sourcePalette })
+      : null;
 
     // B3: FlatBackgroundClassifier & Target Color Resolution
     const bgRemovalMode = options.bgRemovalMode || 'none';
@@ -842,6 +845,7 @@ export class MosaicEngine {
       detectedMode: 'pixel-art',
       classification,
       islands: islandResult.islands,
+      edgePurifierReport,
       thinFeatureCount: islandResult.thinFeatureCellCount,
       mixelWarnings: sampleResult.mixelWarnings,
       detectedCellSize: cellSize,

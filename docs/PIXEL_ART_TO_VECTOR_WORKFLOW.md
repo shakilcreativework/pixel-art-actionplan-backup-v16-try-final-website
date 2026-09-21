@@ -26,7 +26,7 @@ Choose Normal Image for photographic or continuous-tone input. The only visible 
 
 Set tile size, shape, spacing, rotation, sampling, palette, and dithering as needed. Background removal defaults to None (Keep All). White, black, and picked-color removal are optional.
 
-Before Mosaic Trim, Normal Image also provides **Clean Edge Purifier**. Enable it to replace likely flat-background blends along the exterior edge with nearby colors from the source image. It starts off; **Reset Edge Colors** disables it and regenerates the normal result without clearing manual edits. Palette and dithering settings still apply afterward. The purifier skips transparent or non-flat source backgrounds where it cannot infer a reliable background color.
+**Clean Edge Purifier** appears at the top of the Mosaic controls for both Normal Image and Already Pixel Art, enabled by default. It replaces likely exterior background blends with nearby source colors while preserving established interior shades and manual edits. Already Pixel Art replacements are restricted to its original sampled palette. Small background color variations are tolerated. **Reset Edge Colors** disables it and regenerates the unpurified result without clearing manual edits. Normal Image palette and dithering settings still apply afterward. Transparent or uncertain backgrounds are skipped; restoration is a heuristic, not a guarantee for every image.
 
 ## Mosaic — Already Pixel Art
 

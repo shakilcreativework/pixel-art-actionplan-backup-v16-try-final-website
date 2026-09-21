@@ -16,7 +16,7 @@ export class CleanEdgePurifier {
       borderSamples++;
       if (source.data[offset + 3] < 240) return;
       const color = Array.from(source.data.subarray(offset, offset + 3));
-      const key = color.join(',');
+      const key = color.map(value => Math.floor(value / 16)).join(',');
       const entry = borderColors.get(key) || { color, count: 0 };
       entry.count++;
       borderColors.set(key, entry);
@@ -31,7 +31,10 @@ export class CleanEdgePurifier {
       readBorder(source.width - 1, y);
     }
     const dominant = [...borderColors.values()].sort((a, b) => b.count - a.count)[0];
-    if (!dominant || dominant.count < borderSamples * 0.6) return report;
+    const backgroundSupport = dominant && [...borderColors.values()]
+      .filter(entry => distanceSq(entry.color, dominant.color) <= 576)
+      .reduce((sum, entry) => sum + entry.count, 0);
+    if (!dominant || backgroundSupport < borderSamples * 0.6) return report;
     const background = dominant.color;
     report.backgroundDetected = true;
 
@@ -42,7 +45,7 @@ export class CleanEdgePurifier {
     const visit = (r, c) => {
       const cell = grid[r]?.[c];
       if (!cell || exterior[r][c]) return;
-      if (!cell.isRemoved && cell.sample.a >= 10 && distanceSq(rgb(cell), background) > 144) return;
+      if (!cell.isRemoved && cell.sample.a >= 10 && distanceSq(rgb(cell), background) > 576) return;
       exterior[r][c] = 1;
       queue.push([r, c]);
     };
@@ -64,6 +67,17 @@ export class CleanEdgePurifier {
         options.manualRestoreIds?.has?.(key) || options.manualRemoveIds?.has?.(key));
     };
     const sourceColors = new Map();
+    const interiorColors = new Set();
+    for (let r = 1; r < grid.length - 1; r++) {
+      for (let c = 1; c < grid[r].length - 1; c++) {
+        const cell = grid[r][c];
+        if (!cell.isRemoved && cell.sample.a >= 240 && !exterior[r][c] && !isLocked(cell) &&
+            !neighbors.some(([dr, dc]) => exterior[r + dr]?.[c + dc])) {
+          interiorColors.add(rgb(cell).join(','));
+        }
+      }
+    }
+    const allowedColors = options.sourcePalette && new Set(options.sourcePalette.map(color => color.join(',')));
     const getColors = cell => {
       if (sourceColors.has(cell)) return sourceColors.get(cell);
       const histogram = new Map();
@@ -73,6 +87,7 @@ export class CleanEdgePurifier {
           const offset = (y * source.width + x) * 4;
           if (source.data[offset + 3] < 240) continue;
           const color = Array.from(source.data.subarray(offset, offset + 3));
+          if (allowedColors && !allowedColors.has(color.join(','))) continue;
           if (distanceSq(color, background) < 3600) continue;
           count++;
           const key = color.join(',');
@@ -94,6 +109,7 @@ export class CleanEdgePurifier {
         if (exterior[r][c] || cell.isRemoved || cell.sample.a < 240 || isLocked(cell)) continue;
         if (!neighbors.some(([dr, dc]) => exterior[r + dr]?.[c + dc])) continue;
         const current = rgb(cell);
+        if (interiorColors.has(current.join(','))) continue;
         // Do not recolor solid neutral outlines, even on a white background.
         if (Math.max(...current) - Math.min(...current) < 12 && Math.max(...current) < 80) continue;
 

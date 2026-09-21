@@ -24,7 +24,7 @@ function fixture(background = [0, 0, 0], design = yellow, blend = muddy) {
   return { grid, source: { width, height: width, data }, tileSize };
 }
 
-describe('Normal Image Clean Edge Purifier', () => {
+describe('Mosaic Clean Edge Purifier', () => {
   it('restores yellow boundary colors while preserving interior shading, background, geometry and source pixels', () => {
     const { grid, source } = fixture();
     const original = structuredClone(grid);
@@ -101,11 +101,66 @@ describe('Normal Image Clean Edge Purifier', () => {
     expect(MosaicEngine.exportSVG(reset)).toBe(MosaicEngine.exportSVG(before));
   });
 
-  it('does not affect Already Pixel Art when the Normal Image toggle remains enabled', () => {
+  it('restores Already Pixel Art edges using its original palette and resets without losing design colors', () => {
     const { source, tileSize } = fixture();
     const options = { inputMode: 'pixel-art', tileSize, cleanupEnabled: false };
     const before = MosaicEngine.process(source, options);
     const enabled = MosaicEngine.process(source, { ...options, cleanEdgePurifier: true, cleanEdgeScope: 'outer' });
-    expect(enabled.grid).toEqual(before.grid);
+    expect(enabled.edgePurifierReport.correctedCells).toBe(16);
+    expect(enabled.grid[2][4].color).toBe('rgb(255,220,0)');
+    expect(enabled.grid[4][4].color).toBe(before.grid[4][4].color);
+    expect(enabled.verificationReport.checks.zeroColorLoss).toBe(true);
+    expect(enabled.verificationReport.checks.gridAlignment).toBe(true);
+    const palette = new Set(before.grid.flat().map(cell => cell.color));
+    for (const cell of enabled.grid.flat()) expect(palette.has(cell.color)).toBe(true);
+    const geometry = result => result.grid.flat().map(({ x, y, width, height, alpha, occupied, isRemoved }) =>
+      ({ x, y, width, height, alpha, occupied, isRemoved }));
+    expect(geometry(enabled)).toEqual(geometry(before));
+    const reset = MosaicEngine.process(source, { ...options, cleanEdgePurifier: false, cleanEdgeScope: 'off' });
+    expect(reset.grid).toEqual(before.grid);
+    expect(MosaicEngine.exportSVG(enabled)).toContain('rgb(255,220,0)');
+  });
+
+  it('recognizes a nearly black background despite small RGB variations', () => {
+    const { grid, source } = fixture();
+    for (let y = 0; y < source.height; y++) for (let x = 0; x < source.width; x++) {
+      if (x >= 8 && x < 28 && y >= 8 && y < 28) continue;
+      const offset = (y * source.width + x) * 4;
+      source.data[offset] = (x + y) % 9;
+      source.data[offset + 1] = (2 * x + y) % 9;
+      source.data[offset + 2] = (x + 3 * y) % 9;
+    }
+    const report = CleanEdgePurifier.apply(grid, source);
+    expect(report.backgroundDetected).toBe(true);
+    expect(report.correctedCells).toBeGreaterThan(0);
+    expect(grid[2][4].color).toBe('rgb(255,220,0)');
+  });
+
+  it('protects established design shades that also occur on the boundary', () => {
+    const { grid, source } = fixture();
+    grid[4][4].sample = { r: 102, g: 88, b: 0, a: 255 };
+    grid[4][4].color = 'rgb(102,88,0)';
+    const before = structuredClone(grid);
+    CleanEdgePurifier.apply(grid, source);
+    expect(grid).toEqual(before);
+  });
+
+  it('does not alter already clean pixel-art colors', () => {
+    const { source, tileSize } = fixture([0, 0, 0], yellow, yellow);
+    const options = { inputMode: 'pixel-art', tileSize, cleanupEnabled: false };
+    const before = MosaicEngine.process(source, options);
+    const after = MosaicEngine.process(source, { ...options, cleanEdgePurifier: true, cleanEdgeScope: 'outer' });
+    expect(after.edgePurifierReport.correctedCells).toBe(0);
+    expect(after.grid).toEqual(before.grid);
+  });
+
+  it('preserves Already Pixel Art manual paint and erasure with purification enabled', () => {
+    const { source, tileSize } = fixture();
+    const result = MosaicEngine.process(source, { inputMode: 'pixel-art', tileSize,
+      cleanEdgePurifier: true, cleanEdgeScope: 'outer', cleanupEnabled: false,
+      manualOverrides: { '4,2': { type: 'paint', color: 'rgb(40,120,200)' }, '2,4': { type: 'erase' } } });
+    expect(result.grid[2][4].color).toBe('rgb(40,120,200)');
+    expect(result.grid[4][2].isRemoved).toBe(true);
+    expect(result.grid[6][4].color).toBe('rgb(255,220,0)');
   });
 });

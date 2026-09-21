@@ -131,8 +131,8 @@ class App {
         targetScale: 'auto',
         gridOffsetX: 0,
         gridOffsetY: 0,
-        cleanEdgePurifier: false,
-        cleanEdgeScope: 'off',
+        cleanEdgePurifier: true,
+        cleanEdgeScope: 'outer',
         tileSize: 16,
         shape: 'square',
         spacing: 0,
@@ -2742,7 +2742,7 @@ class App {
   updateMosaicModeUI(inputMode, activePathway) {
     const isPixelArt = activePathway === 'pixel-art' || (inputMode === 'pixel-art');
 
-    if (this.el.msCleanEdgeSection) this.el.msCleanEdgeSection.style.display = isPixelArt ? 'none' : '';
+    if (this.el.msCleanEdgeSection) this.el.msCleanEdgeSection.style.display = '';
     if (this.el.msCleanEdgeToggle) this.el.msCleanEdgeToggle.checked = !!this.state.mosaic.cleanEdgePurifier;
     if (this.el.msCleanEdgeResetBtn) this.el.msCleanEdgeResetBtn.disabled = !this.state.mosaic.cleanEdgePurifier;
 

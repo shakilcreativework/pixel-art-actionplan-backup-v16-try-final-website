@@ -1,8 +1,8 @@
 # Pixel Studio & Vector Creative Suite — Development Tracker
 
-**Last updated:** September 20, 2026
+**Last updated:** September 21, 2026
 
-**Latest activity:** Optional Clean Edge Purifier added to Mosaic Normal Image.
+**Latest activity:** Clean Edge Purifier enabled by default at the top of both Mosaic modes.
 
 ## Current project references
 
@@ -17,11 +17,11 @@
 
 ## Latest executed checks
 
-These results are from the September 20 Clean Edge Purifier implementation.
+These results are from the September 21 Clean Edge Purifier implementation.
 
 | Check | Result |
 |---|---|
-| Automated tests | **159/159 passed** across 22 files |
+| Automated tests | **163/163 passed** across 22 files |
 | Production build | Succeeded; **53 modules** transformed |
 | Targeted ESLint checks | Four changed/new JavaScript files; zero unused-variable or unreachable-code findings |
 | Interactive browser verification | Not performed in this session |
@@ -900,3 +900,11 @@ Duplicate entries have been consolidated by title, retaining the more complete c
 * **Preservation**: The pass does not change source pixels, tile geometry, alpha, protected cells, manual edits, or interior shading. Already Pixel Art and the existing purifier helper remain unchanged. Reset regenerates the normal result; Reset All also disables the new control.
 * **Limits**: Requires a dominant opaque flat source background and suitable nearby source colors. Restoration is a heuristic, not recovery of missing source information. Later palette, dithering, removal, and cleanup settings still apply.
 * **Verification**: Seven new tests cover yellow/gold restoration, outlines, shading, protected/manual cells, unsupported backgrounds, reset/export parity, and Already Pixel Art isolation. All 159 tests passed across 22 files; production build passed with 53 modules; targeted lint passed. No interactive browser check was performed.
+
+### [Log Entry 046] — Clean Edge Purifier in Both Mosaic Modes
+
+* **Date**: September 21, 2026.
+* **Changes**: Enabled the purifier by default and moved it to the top of the Mosaic panel. Added Already Pixel Art processing with replacements restricted to its original sampled palette. Background detection now tolerates small RGB variations; established interior colors are protected even when they also occur on the boundary.
+* **Reset**: Reset Edge Colors and Reset All can still explicitly disable purification. Mode changes preserve the user's toggle choice.
+* **Verification**: 163/163 tests passed across 22 files, including 11 purifier tests; production build passed with 53 modules. Tests cover noisy backgrounds, clean pixel-art identity, palette and geometry preservation, interior shades, manual edits, export, and reset.
+* **Limit**: No interactive browser or original screenshot-source-image validation was performed. Edge restoration remains heuristic and skips uncertain backgrounds.

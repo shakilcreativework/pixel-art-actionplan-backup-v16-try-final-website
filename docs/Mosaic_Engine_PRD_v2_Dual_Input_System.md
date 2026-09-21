@@ -61,6 +61,8 @@ Sampling covers complete cells. Correct size, alignment, and input dimensions ma
 
 ### B3. FlatBackgroundClassifier
 
+Between sampling and classification, Clean Edge Purifier runs when enabled. The application enables it by default for both image modes. In this pathway it may replace exterior blend colors only with colors in the original sampled palette. It preserves established interior shades, manual overrides, alpha, and cell geometry. Turning it off restores the unchanged sampled result on regeneration.
+
 [FlatBackgroundClassifier.js](../src/core/mosaic/FlatBackgroundClassifier.js) classifies selected background colors using the configured tolerance. It runs when background removal is requested.
 
 ### B4. HardEdgeBackgroundRemover

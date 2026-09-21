@@ -34,7 +34,7 @@ Only Pixel Art is processed through a dedicated Web Worker. Other engines run sy
 
 ## Source File Map
 
-Every file listed below exists in the repository as of September 20, 2026. The Mosaic UI offers Normal Image and Already Pixel Art; Normal Image exposes only Default Pixel Art. Other strategy modules remain available internally and in tests.
+Every file listed below exists in the repository as of September 21, 2026. The Mosaic UI offers Normal Image and Already Pixel Art; Normal Image exposes only Default Pixel Art. Other strategy modules remain available internally and in tests.
 
 ### `src/`
 
@@ -74,7 +74,7 @@ Every file listed below exists in the repository as of September 20, 2026. The M
 | `MosaicEngine.js` | Coordinator | Master tile geometry renderer; Square, Circle, Triangle, Hexagon, Diamond tiles; variable size (1–64 px), spacing (0–10 px), rotation (0°–360°) |
 | `InputClassifier.js` | Stage 0 | Two-tier heuristic and multi-signal input classifier (Auto / Photo vs Already Pixel Art) |
 | `ContinuousShading.js` | Stage 1 (Pathway A) | OKLab area sampling at tile centers in world pixel space — eliminates horizontal/vertical row seams |
-| `CleanEdgePurifier.js` | Optional Pathway A color pass | Restores likely exterior background blends to local source colors before palette processing; no cell geometry or source-buffer changes |
+| `CleanEdgePurifier.js` | Color pass for both pathways | Enabled by default in the UI; restores likely exterior blends using source colors, with original-palette restrictions in Already Pixel Art; preserves geometry and established interior shades |
 | `ContourTracer.js` | Stage 2 (Pathway A) | 8-connected Moore-Neighbor contour tracing on binary design masks — closed outlines, concave notches, convex tips |
 | `BackgroundClassifier.js` | Stage 3 (Pathway A) | Parameterized 3-category classifier: `background`, `boundary`, `design` |
 | `BackgroundRemover.js` | Stage 4 (Pathway A) | Scope-aware adaptive flood fill — perimeter-seeded BFS; modes: Outer Edge (Safe) and Everywhere (Global); Black / White / Pick-Color targets |
@@ -182,7 +182,7 @@ Every file listed below exists in the repository as of September 20, 2026. The M
 
 ## Test Suite
 
-Recorded after Clean Edge Purifier implementation on September 20, 2026.
+Recorded after Clean Edge Purifier implementation on September 21, 2026.
 
 | Test File | Tests | Status |
 |---|:---:|:---:|
@@ -207,13 +207,13 @@ Recorded after Clean Edge Purifier implementation on September 20, 2026.
 | `test/mosaic-quality-verification-toggle.test.js` | 3 | 🟢 PASS |
 | `test/mosaic-pixel-diff.test.js` | 2 | 🟢 PASS |
 | `test/mosaic-manual-paint-overrides.test.js` | 1 | 🟢 PASS |
-| `test/mosaic-clean-edge-purifier.test.js` | 7 | 🟢 PASS |
-| **Total** | **159 / 159** | **🟢 100% PASS** |
+| `test/mosaic-clean-edge-purifier.test.js` | 11 | 🟢 PASS |
+| **Total** | **163 / 163** | **🟢 100% PASS** |
 
 ---
 
 ## Build Output
 
-The September 20, 2026 Clean Edge Purifier build succeeded with 53 transformed modules. Generated assets live in `dist/`; bundle sizes and hash filenames change with builds.
+The September 21, 2026 Clean Edge Purifier build succeeded with 53 transformed modules. Generated assets live in `dist/`; bundle sizes and hash filenames change with builds.
 
 See [QA report](FINAL_QA_REPORT.md) for verification scope and [SVG export](SVG_EXPORT.md) for format limitations.

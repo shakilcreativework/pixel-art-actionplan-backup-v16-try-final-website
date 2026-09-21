@@ -188,7 +188,9 @@ class App {
           designBoundaries: true
         }
       },
-      isPanToolActive: false
+      isPanToolActive: false,
+      mosaicEraseRenderFrame: null,
+      mosaicErasePaletteDirty: false
     };
 
     this.history = new HistoryManager(30);
@@ -1992,6 +1994,10 @@ class App {
           }
         }
         this.state.isDrawing = false;
+        if (this.state.mode === 'mosaic' && this.state.mosaicErasePaletteDirty) {
+          this.state.mosaicErasePaletteDirty = false;
+          this.renderMosaicActivePaletteSwatches();
+        }
       }
     });
 
@@ -2357,6 +2363,7 @@ class App {
         if (!this.state.mosaic.protectedIds) this.state.mosaic.protectedIds = new Set();
 
         if (manualTool === 'remove') {
+          if (cell.isRemoved && !cell.occupied) return;
           this.state.mosaic.manualRemoveIds.add(cell.id);
           this.state.mosaic.manualRestoreIds.delete(cell.id);
           this.state.mosaic.manualOverrides[`${c},${r}`] = { action: 'remove', removed: true };
@@ -2379,7 +2386,12 @@ class App {
             cell.isProtected = true;
           }
         }
-        this.renderCurrentEngine();
+        if (manualTool === 'remove') {
+          this.state.mosaicErasePaletteDirty = true;
+          this.scheduleMosaicErasePreview();
+        } else {
+          this.renderCurrentEngine();
+        }
         return;
       }
     }
@@ -2484,6 +2496,27 @@ class App {
         this.renderMosaicActivePaletteSwatches();
       }
     }
+  }
+
+  scheduleMosaicErasePreview() {
+    if (this.state.mosaicEraseRenderFrame !== null) return;
+
+    const scheduleFrame = window.requestAnimationFrame
+      ? (callback) => window.requestAnimationFrame(callback)
+      : (callback) => window.setTimeout(callback, 16);
+    this.state.mosaicEraseRenderFrame = scheduleFrame(() => {
+      this.state.mosaicEraseRenderFrame = null;
+      if (this.state.mode !== 'mosaic' || !this.state.mosaicGrid || !this.el.outputCanvas) return;
+
+      MosaicEngine.renderToCanvas({
+        grid: this.state.mosaicGrid,
+        width: this.el.outputCanvas.width,
+        height: this.el.outputCanvas.height,
+        transparentBg: this.state.transparentBg,
+        bgColor: this.state.bgColor,
+        ...this.state.mosaic
+      }, this.ctx);
+    });
   }
 
   handleMosaicShapeEnd(x, y) {

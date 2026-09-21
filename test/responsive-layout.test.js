@@ -105,6 +105,14 @@ describe('Responsive Layout & Markup Audit', () => {
     expect(samplingSelect).not.toMatch(/k-centroid|lanczos-windowed|median|dominant-mode|center-exact/);
   });
 
+  it('keeps Mosaic eraser dragging on the frame-batched grid preview path', () => {
+    expect(main).toContain('scheduleMosaicErasePreview()');
+    expect(main).toContain('if (cell.isRemoved && !cell.occupied) return;');
+    expect(main).toContain('if (this.state.mosaicEraseRenderFrame !== null) return;');
+    expect(main).toContain('window.requestAnimationFrame');
+    expect(main).toContain('this.state.mosaicErasePaletteDirty = true;');
+  });
+
   it('keeps the Mosaic reset path free of stale controller calls', () => {
     expect(main).toContain('manualRestoreIds: new Set()');
     expect(main).not.toContain('toggleMosaicPaintEyedropper');

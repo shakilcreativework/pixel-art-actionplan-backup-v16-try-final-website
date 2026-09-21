@@ -892,3 +892,11 @@ Duplicate entries have been consolidated by title, retaining the more complete c
 * **Changes**: Removed Contrast-Aware Ridge & Silhouette from the Normal Image dropdown, its Edge Sensitivity and Ridge Sharpness controls, and their DOM lookups and listeners. Default Pixel Art remains selected.
 * **Scope**: UI removal only. Processing engines, saved-project support, Already Pixel Art, and other controls remain unchanged.
 * **Verification**: Dropdown/reference checks passed; 152/152 tests passed across 21 files; production build succeeded with 52 modules.
+
+### [Log Entry 045] — Optional Clean Edge Purifier
+
+* **Date**: September 20, 2026.
+* **Changes**: Added an off-by-default Clean Edge Purifier toggle, restored-cell count, and Reset Edge Colors button above Mosaic Trim in Normal Image mode. A separate color pass replaces likely exterior background blends with local source colors before palette processing.
+* **Preservation**: The pass does not change source pixels, tile geometry, alpha, protected cells, manual edits, or interior shading. Already Pixel Art and the existing purifier helper remain unchanged. Reset regenerates the normal result; Reset All also disables the new control.
+* **Limits**: Requires a dominant opaque flat source background and suitable nearby source colors. Restoration is a heuristic, not recovery of missing source information. Later palette, dithering, removal, and cleanup settings still apply.
+* **Verification**: Seven new tests cover yellow/gold restoration, outlines, shading, protected/manual cells, unsupported backgrounds, reset/export parity, and Already Pixel Art isolation. All 159 tests passed across 22 files; production build passed with 53 modules; targeted lint passed. No interactive browser check was performed.

@@ -65,12 +65,10 @@ export function rgbDistanceSq(r1, g1, b1, r2, g2, b2) {
 
 /**
  * Sample a rectangular cell region from an RGBA buffer.
- * Supports 9 algorithms:
+ * Supports shared Pixel Art and Mosaic sampling algorithms:
  *   - 'perceptual-oklab' / 'perceptual': OKLab Perceptual Area Weighted
- *   - 'k-centroid': Astropulse / PixelOE K-Centroid Vector Clustering
  *   - 'contrast-aware': Edge-Preserving Contrast Weighting
  *   - 'gaussian-weighted': 2D Gaussian Bell-Curve Footprint
- *   - 'lanczos-windowed': Lanczos Sinc-Windowed Kernel
  *   - 'median': Median Filter (Impulse Noise Rejection)
  *   - 'dominant-mode' / 'dominant': 5-Bit Modal Frequency Bucket
  *   - 'center-exact' / 'center': 1:1 Exact Geometric Center Point
@@ -193,64 +191,7 @@ export function sampleCellColor(
     }
   }
 
-  // 3. K-Centroid Clustering (Astropulse / PixelOE Algorithm)
-  if (method === 'k-centroid') {
-    if (pixels.length <= 3) {
-      return {
-        r: Math.round(totalR / pixels.length),
-        g: Math.round(totalG / pixels.length),
-        b: Math.round(totalB / pixels.length),
-        a: avgAlpha
-      };
-    }
-
-    // Initialize 2 centroids using min/max luminance extremes
-    let minLum = 999, maxLum = -1;
-    let c1 = pixels[0], c2 = pixels[pixels.length - 1];
-    for (const p of pixels) {
-      const lum = 0.299 * p.r + 0.587 * p.g + 0.114 * p.b;
-      if (lum < minLum) { minLum = lum; c1 = { r: p.r, g: p.g, b: p.b }; }
-      if (lum > maxLum) { maxLum = lum; c2 = { r: p.r, g: p.g, b: p.b }; }
-    }
-
-    // 3 iterations of K-Means clustering
-    let cluster1 = [], cluster2 = [];
-    for (let iter = 0; iter < 3; iter++) {
-      cluster1 = [];
-      cluster2 = [];
-      for (const p of pixels) {
-        const d1 = rgbDistanceSq(p.r, p.g, p.b, c1.r, c1.g, c1.b);
-        const d2 = rgbDistanceSq(p.r, p.g, p.b, c2.r, c2.g, c2.b);
-        if (d1 <= d2) cluster1.push(p);
-        else cluster2.push(p);
-      }
-      if (cluster1.length > 0) {
-        c1 = {
-          r: Math.round(cluster1.reduce((s, p) => s + p.r, 0) / cluster1.length),
-          g: Math.round(cluster1.reduce((s, p) => s + p.g, 0) / cluster1.length),
-          b: Math.round(cluster1.reduce((s, p) => s + p.b, 0) / cluster1.length)
-        };
-      }
-      if (cluster2.length > 0) {
-        c2 = {
-          r: Math.round(cluster2.reduce((s, p) => s + p.r, 0) / cluster2.length),
-          g: Math.round(cluster2.reduce((s, p) => s + p.g, 0) / cluster2.length),
-          b: Math.round(cluster2.reduce((s, p) => s + p.g, 0) / cluster2.length)
-        };
-      }
-    }
-
-    // Pick majority cluster centroid
-    const winningCentroid = cluster1.length >= cluster2.length ? c1 : c2;
-    return {
-      r: winningCentroid.r,
-      g: winningCentroid.g,
-      b: winningCentroid.b,
-      a: avgAlpha
-    };
-  }
-
-  // 4. Contrast-Aware Edge Preserving
+  // 3. Contrast-Aware Edge Preserving
   if (method === 'contrast-aware') {
     // Weight each pixel based on distance from local edge gradient
     let weightedR = 0, weightedG = 0, weightedB = 0, totalW = 0;
@@ -284,7 +225,7 @@ export function sampleCellColor(
     }
   }
 
-  // 5. 2D Gaussian Bell-Curve Footprint
+  // 4. 2D Gaussian Bell-Curve Footprint
   if (method === 'gaussian-weighted') {
     const sigma = Math.max(0.7, (Math.max(boxW, boxH) / 2.5));
     const twoSigmaSq = 2 * sigma * sigma;
@@ -311,45 +252,7 @@ export function sampleCellColor(
     }
   }
 
-  // 6. Lanczos Windowed Kernel
-  if (method === 'lanczos-windowed') {
-    function sinc(x) {
-      if (Math.abs(x) < 1e-5) return 1.0;
-      const pix = Math.PI * x;
-      return Math.sin(pix) / pix;
-    }
-    function lanczos2(x) {
-      const ax = Math.abs(x);
-      if (ax >= 2.0) return 0.0;
-      return sinc(x) * sinc(x / 2.0);
-    }
-
-    const radiusX = Math.max(1, boxW / 2);
-    const radiusY = Math.max(1, boxH / 2);
-    let lR = 0, lG = 0, lB = 0, lSum = 0;
-
-    for (const p of pixels) {
-      const nx = (p.px - centerX) / radiusX * 2.0;
-      const ny = (p.py - centerY) / radiusY * 2.0;
-      const weight = Math.max(0, lanczos2(nx) * lanczos2(ny));
-
-      lR += p.r * weight;
-      lG += p.g * weight;
-      lB += p.b * weight;
-      lSum += weight;
-    }
-
-    if (lSum > 0) {
-      return {
-        r: Math.round(Math.max(0, Math.min(255, lR / lSum))),
-        g: Math.round(Math.max(0, Math.min(255, lG / lSum))),
-        b: Math.round(Math.max(0, Math.min(255, lB / lSum))),
-        a: avgAlpha
-      };
-    }
-  }
-
-  // 7. Perceptual OKLab Area Weighted (Default High-Fidelity)
+  // 5. Perceptual OKLab Area Weighted (Default High-Fidelity)
   if (method === 'perceptual' || method === 'perceptual-oklab') {
     let okLSum = 0, okaSum = 0, okbSum = 0;
     for (const p of pixels) {
@@ -365,7 +268,7 @@ export function sampleCellColor(
     return { r, g, b, a: avgAlpha };
   }
 
-  // 8. Fallback / Standard Area Average
+  // 6. Fallback / Standard Area Average
   return {
     r: Math.round(totalR / pixels.length),
     g: Math.round(totalG / pixels.length),

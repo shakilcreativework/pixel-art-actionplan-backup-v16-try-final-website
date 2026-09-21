@@ -95,6 +95,16 @@ describe('Responsive Layout & Markup Audit', () => {
     expect(main).toContain("this.el.msCleanEdgeStatus.textContent = mode === 'pixel-art' ? 'Ready' : 'Off'");
   });
 
+  it('offers only the four approved Mosaic sampling methods', () => {
+    const samplingSelect = html.match(/<select id="msSamplingSelect">([\s\S]*?)<\/select>/)?.[1] || '';
+    expect(samplingSelect.match(/<option /g)).toHaveLength(4);
+    expect(samplingSelect).toContain('value="perceptual-oklab"');
+    expect(samplingSelect).toContain('value="contrast-aware"');
+    expect(samplingSelect).toContain('value="gaussian-weighted"');
+    expect(samplingSelect).toContain('value="average"');
+    expect(samplingSelect).not.toMatch(/k-centroid|lanczos-windowed|median|dominant-mode|center-exact/);
+  });
+
   it('keeps the Mosaic reset path free of stale controller calls', () => {
     expect(main).toContain('manualRestoreIds: new Set()');
     expect(main).not.toContain('toggleMosaicPaintEyedropper');

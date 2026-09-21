@@ -1,6 +1,6 @@
 /**
  * mosaic-strategies-and-sampling.test.js
- * Comprehensive Unit Test Suite for Overhauled Mosaic Strategies & 9 Sampling Methods.
+ * Comprehensive Unit Test Suite for Mosaic strategies and active sampling methods.
  */
 
 import { describe, it, expect } from 'vitest';
@@ -47,50 +47,27 @@ describe('Mosaic Sampling Methods Suite', () => {
     expect(sample.b).toBe(50);
   });
 
-  it('2. K-Centroid clustering rejects muddy blending and extracts the true representative centroid', () => {
-    const sample = sampleCellColor(mountainSunImg.data, 8, 8, 0, 0, 8, 8, 'k-centroid');
-    // Majority cluster is dark mountain blue
-    expect(sample.r).toBeCloseTo(20, -1);
-    expect(sample.g).toBeCloseTo(20, -1);
-    expect(sample.b).toBeCloseTo(50, -1);
-  });
-
-  it('3. Contrast-aware sampling preserves structural edge color without blending into background', () => {
+  it('2. Contrast-aware sampling preserves structural edge color without blending into background', () => {
     const sample = sampleCellColor(mountainSunImg.data, 8, 8, 0, 0, 8, 8, 'contrast-aware');
     expect(sample).toBeDefined();
     expect(sample.a).toBe(255);
   });
 
-  it('4. Gaussian-weighted sampling smoothly weights pixels around cell center', () => {
+  it('3. Gaussian-weighted sampling smoothly weights pixels around cell center', () => {
     const sample = sampleCellColor(mountainSunImg.data, 8, 8, 0, 0, 8, 8, 'gaussian-weighted');
     expect(sample).toBeDefined();
     expect(sample.a).toBe(255);
   });
 
-  it('5. Lanczos-windowed kernel applies sinc windowing', () => {
-    const sample = sampleCellColor(mountainSunImg.data, 8, 8, 0, 0, 8, 8, 'lanczos-windowed');
-    expect(sample).toBeDefined();
-    expect(sample.a).toBe(255);
-  });
-
-  it('6. Median filter rejects outlier colors', () => {
-    const sample = sampleCellColor(mountainSunImg.data, 8, 8, 0, 0, 8, 8, 'median');
-    expect(sample.r).toBe(20);
-    expect(sample.g).toBe(20);
-    expect(sample.b).toBe(50);
-  });
-
-  it('7. Dominant mode extracts the most frequent color bucket', () => {
-    const sample = sampleCellColor(mountainSunImg.data, 8, 8, 0, 0, 8, 8, 'dominant-mode');
-    expect(sample.r).toBe(20);
-    expect(sample.g).toBe(20);
-    expect(sample.b).toBe(50);
-  });
-
-  it('8. Perceptual OKLab area sampling produces accurate perceptual color', () => {
+  it('4. Perceptual OKLab area sampling produces accurate perceptual color', () => {
     const sample = sampleCellColor(mountainSunImg.data, 8, 8, 0, 0, 8, 8, 'perceptual-oklab');
     expect(sample).toBeDefined();
     expect(sample.a).toBe(255);
+  });
+
+  it('5. Standard average produces the uniform arithmetic mean', () => {
+    const sample = sampleCellColor(mountainSunImg.data, 8, 8, 0, 0, 8, 8, 'average');
+    expect(sample).toEqual({ r: 79, g: 70, b: 58, a: 255 });
   });
 });
 

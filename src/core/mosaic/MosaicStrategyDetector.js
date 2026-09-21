@@ -99,7 +99,7 @@ export class MosaicStrategyDetector {
         badgeLabel: 'Recommended: Direct Orthogonal Contour',
         rationale: 'Continuous shading detected; orthogonal contour tracing yields crisp geometric regions.',
         confidence: 0.85,
-        recommendedSampling: 'k-centroid'
+        recommendedSampling: 'perceptual-oklab'
       };
     }
 

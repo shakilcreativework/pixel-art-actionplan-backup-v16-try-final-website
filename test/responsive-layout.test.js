@@ -84,6 +84,17 @@ describe('Responsive Layout & Markup Audit', () => {
     expect(main).toContain('this.setMosaicInputMode(mode)');
   });
 
+  it('applies mode-specific Clean Edge Purifier defaults', () => {
+    expect(html).toContain('id="msCleanEdgeStatus" aria-live="polite">Off</span>');
+    expect(html).toMatch(/id="msCleanEdgeToggle" aria-label="Enable Clean Edge Purifier">/);
+    expect(html).not.toMatch(/id="msCleanEdgeToggle"[^>]*\schecked(?:\s|>)/);
+    expect(main).toContain('cleanEdgePurifier: false');
+    expect(main).toContain("cleanEdgeScope: 'off'");
+    expect(main).toContain("this.state.mosaic.cleanEdgePurifier = mode === 'pixel-art'");
+    expect(main).toContain("this.state.mosaic.cleanEdgeScope = mode === 'pixel-art' ? 'outer' : 'off'");
+    expect(main).toContain("this.el.msCleanEdgeStatus.textContent = mode === 'pixel-art' ? 'Ready' : 'Off'");
+  });
+
   it('keeps the Mosaic reset path free of stale controller calls', () => {
     expect(main).toContain('manualRestoreIds: new Set()');
     expect(main).not.toContain('toggleMosaicPaintEyedropper');

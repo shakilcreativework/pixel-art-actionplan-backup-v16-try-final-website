@@ -131,8 +131,8 @@ class App {
         targetScale: 'auto',
         gridOffsetX: 0,
         gridOffsetY: 0,
-        cleanEdgePurifier: true,
-        cleanEdgeScope: 'outer',
+        cleanEdgePurifier: false,
+        cleanEdgeScope: 'off',
         tileSize: 16,
         shape: 'square',
         spacing: 0,
@@ -2714,6 +2714,12 @@ class App {
 
     this.state.mosaic.inputMode = mode;
     this.state.mosaic.sourceArtType = (mode === 'photo') ? 'normal' : 'already-pixel-art';
+    this.state.mosaic.cleanEdgePurifier = mode === 'pixel-art';
+    this.state.mosaic.cleanEdgeScope = mode === 'pixel-art' ? 'outer' : 'off';
+
+    if (this.el.msCleanEdgeStatus) {
+      this.el.msCleanEdgeStatus.textContent = mode === 'pixel-art' ? 'Ready' : 'Off';
+    }
 
     if (this.el.msSourceArtTypeSelect) {
       this.el.msSourceArtTypeSelect.value = this.state.mosaic.sourceArtType;

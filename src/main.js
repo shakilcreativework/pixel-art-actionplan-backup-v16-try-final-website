@@ -837,7 +837,7 @@ class App {
       const res = CamoMeshEngine.process(src, this.state.camoMesh);
       CamoMeshEngine.renderToCanvas(res, this.ctx);
     } else if (this.state.mode === 'mosaic') {
-      const res = MosaicEngine.process(src, this.state.mosaic);
+      const res = MosaicEngine.process(src, this.getMosaicRenderOptions());
       this.state.mosaicGrid = res.grid;
       this.state.mosaicFitOffsetX = res.fitOffsetX || 0;
       this.state.mosaicFitOffsetY = res.fitOffsetY || 0;
@@ -885,6 +885,19 @@ class App {
 
     this.updateStatusBar();
     this.showStatus('Ready');
+  }
+
+  getMosaicRenderOptions() {
+    const mosaic = this.state.mosaic;
+    const hasBackgroundRemoval = mosaic.bgRemovalMode !== 'none'
+      || (mosaic.outsideBgRemovalColors?.length || 0) > 0
+      || (mosaic.insideBgRemovalColors?.length || 0) > 0
+      || (mosaic.bgRemovalColors?.length || 0) > 0;
+
+    return {
+      ...mosaic,
+      fitDocumentToDesign: Boolean(mosaic.fitDocumentToDesign && !hasBackgroundRemoval)
+    };
   }
 
   renderMosaicDocColors() {
@@ -3195,7 +3208,7 @@ class App {
         const res = RandomFlowEngine.process(this.state.croppedImageData, this.state.randomFlow);
         svg = SvgExporter.exportRandomFlow(res, { transparentBg: transparent, bgColor });
       } else if (this.state.mode === 'mosaic') {
-        const res = MosaicEngine.process(this.state.croppedImageData, this.state.mosaic);
+        const res = MosaicEngine.process(this.state.croppedImageData, this.getMosaicRenderOptions());
         svg = MosaicEngine.exportSVG(res, {
           mode: svgMode,
           transparentBg: transparent,

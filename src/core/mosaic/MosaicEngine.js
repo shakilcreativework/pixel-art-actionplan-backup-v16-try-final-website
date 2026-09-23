@@ -70,6 +70,63 @@ function parseColorToRgb(color) {
 
 export class MosaicEngine {
   /**
+   * Keep the rendered Mosaic document aligned to complete tile steps.
+   * This prevents a partial final row/column from being clipped when the
+   * source document is not evenly divisible by tile size + spacing.
+   */
+  static getTileSafeDimensions(width, height, tileSize = 16, spacing = 0) {
+    const step = Math.max(1, tileSize + spacing);
+    return {
+      width: Math.ceil(width / step) * step,
+      height: Math.ceil(height / step) * step
+    };
+  }
+
+  /**
+   * Calculate tight bounds from cells that remain part of the design.
+   * Coordinates are expanded to complete tile boundaries before translation.
+   */
+  static getDesignFit(grid, width, height, tileSize = 16, spacing = 0) {
+    const cells = (grid || []).flat().filter(cell =>
+      cell && !cell.isRemoved && cell.occupied && cell.sample && cell.sample.a >= 10
+    );
+
+    if (cells.length === 0) {
+      const safe = MosaicEngine.getTileSafeDimensions(width, height, tileSize, spacing);
+      return { x: 0, y: 0, width: safe.width, height: safe.height, fitted: false };
+    }
+
+    const minX = Math.min(...cells.map(cell => cell.x));
+    const minY = Math.min(...cells.map(cell => cell.y));
+    const maxX = Math.max(...cells.map(cell => cell.x + (cell.width || tileSize)));
+    const maxY = Math.max(...cells.map(cell => cell.y + (cell.height || tileSize)));
+    const step = Math.max(1, tileSize + spacing);
+    const originX = Math.floor(minX / step) * step;
+    const originY = Math.floor(minY / step) * step;
+    const endX = Math.ceil(maxX / step) * step;
+    const endY = Math.ceil(maxY / step) * step;
+
+    return {
+      x: originX,
+      y: originY,
+      width: Math.max(step, endX - originX),
+      height: Math.max(step, endY - originY),
+      fitted: true
+    };
+  }
+
+  static applyDesignFit(grid, fit) {
+    if (!fit || !fit.fitted) return;
+    for (const cell of (grid || []).flat()) {
+      if (!cell) continue;
+      cell.x -= fit.x;
+      cell.y -= fit.y;
+      if (cell.cx !== undefined) cell.cx -= fit.x;
+      if (cell.cy !== undefined) cell.cy -= fit.y;
+    }
+  }
+
+  /**
    * Process source image through the complete Mosaic pipeline with design preservation.
    */
   static process(sourceImage, options = {}) {
@@ -590,6 +647,10 @@ export class MosaicEngine {
     const tiles = grid.flat().filter(c => !c.isRemoved);
     const qaMismatches = PostQualityPass.generateDiagnostics(grid, numRows, numCols);
 
+    const fit = options.fitDocumentToDesign
+      ? MosaicEngine.getDesignFit(grid, width, height, tileSize, spacing)
+      : { x: 0, y: 0, ...MosaicEngine.getTileSafeDimensions(width, height, tileSize, spacing), fitted: false };
+    if (fit.fitted) MosaicEngine.applyDesignFit(grid, fit);
     const result = {
       canvas: null,
       grid,
@@ -609,8 +670,11 @@ export class MosaicEngine {
       strategy: activeStrategy,
       mosaicStrategy: activeStrategy,
       islands: strategyResult ? strategyResult.islands : null,
-      width,
-      height,
+      width: fit.width,
+      height: fit.height,
+      fitOffsetX: fit.x,
+      fitOffsetY: fit.y,
+      fitDocumentToDesign: Boolean(options.fitDocumentToDesign),
       tileSize,
       spacing,
       shape,
@@ -629,13 +693,13 @@ export class MosaicEngine {
     // Render to Canvas if environment supports it
     if (typeof document !== 'undefined' && document.createElement) {
       const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
+      canvas.width = fit.width;
+      canvas.height = fit.height;
       const ctx = canvas.getContext('2d');
       MosaicEngine.renderToCanvas(result, ctx, options);
       result.canvas = canvas;
     } else if (typeof OffscreenCanvas !== 'undefined') {
-      const canvas = new OffscreenCanvas(width, height);
+      const canvas = new OffscreenCanvas(fit.width, fit.height);
       const ctx = canvas.getContext('2d');
       MosaicEngine.renderToCanvas(result, ctx, options);
       result.canvas = canvas;
@@ -815,6 +879,10 @@ export class MosaicEngine {
 
     const contourResult = ContourTracer.trace(grid);
     const tiles = grid.flat().filter(c => !c.isRemoved);
+    const fit = options.fitDocumentToDesign
+      ? MosaicEngine.getDesignFit(grid, width, height, cellSize, spacing)
+      : { x: 0, y: 0, ...MosaicEngine.getTileSafeDimensions(width, height, cellSize, spacing), fitted: false };
+    if (fit.fitted) MosaicEngine.applyDesignFit(grid, fit);
 
     const result = {
       canvas: null,
@@ -851,8 +919,11 @@ export class MosaicEngine {
       detectedCellSize: cellSize,
       offsetX,
       offsetY,
-      width,
-      height,
+      width: fit.width,
+      height: fit.height,
+      fitOffsetX: fit.x,
+      fitOffsetY: fit.y,
+      fitDocumentToDesign: Boolean(options.fitDocumentToDesign),
       tileSize: cellSize,
       spacing,
       shape,
@@ -870,13 +941,13 @@ export class MosaicEngine {
 
     if (typeof document !== 'undefined' && document.createElement) {
       const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
+      canvas.width = fit.width;
+      canvas.height = fit.height;
       const ctx = canvas.getContext('2d');
       MosaicEngine.renderToCanvas(result, ctx, options);
       result.canvas = canvas;
     } else if (typeof OffscreenCanvas !== 'undefined') {
-      const canvas = new OffscreenCanvas(width, height);
+      const canvas = new OffscreenCanvas(fit.width, fit.height);
       const ctx = canvas.getContext('2d');
       MosaicEngine.renderToCanvas(result, ctx, options);
       result.canvas = canvas;

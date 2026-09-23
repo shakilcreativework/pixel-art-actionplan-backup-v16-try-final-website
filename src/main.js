@@ -134,6 +134,7 @@ class App {
         cleanEdgePurifier: false,
         cleanEdgeScope: 'off',
         tileSize: 16,
+        fitDocumentToDesign: true,
         shape: 'square',
         spacing: 0,
         rotation: 0,
@@ -379,6 +380,7 @@ class App {
       msSizePresetSelect: document.getElementById('msSizePresetSelect'),
       msSizeSlider: document.getElementById('msSizeSlider'),
       msSizeVal: document.getElementById('msSizeVal'),
+      msFitDocumentToggle: document.getElementById('msFitDocumentToggle'),
       msShapeSelect: document.getElementById('msShapeSelect'),
       msSpacingSlider: document.getElementById('msSpacingSlider'),
       msSpacingVal: document.getElementById('msSpacingVal'),
@@ -837,6 +839,18 @@ class App {
     } else if (this.state.mode === 'mosaic') {
       const res = MosaicEngine.process(src, this.state.mosaic);
       this.state.mosaicGrid = res.grid;
+      this.state.mosaicFitOffsetX = res.fitOffsetX || 0;
+      this.state.mosaicFitOffsetY = res.fitOffsetY || 0;
+      this.el.outputCanvas.width = res.width;
+      this.el.outputCanvas.height = res.height;
+      this.el.gridOverlayCanvas.width = res.width;
+      this.el.gridOverlayCanvas.height = res.height;
+      if (this.el.statusDocDims) this.el.statusDocDims.textContent = `${res.width} × ${res.height} px`;
+      if (this.el.docDimsBadge && this.state.mosaic.fitDocumentToDesign) {
+        this.el.docDimsBadge.textContent = `${res.width} × ${res.height}`;
+      } else if (this.el.docDimsBadge) {
+        this.el.docDimsBadge.textContent = `${this.state.documentWidth} × ${this.state.documentHeight}`;
+      }
       MosaicEngine.renderToCanvas(res, this.ctx);
       this.renderMosaicDocColors();
       this.renderMosaicActivePaletteSwatches();
@@ -1422,6 +1436,12 @@ class App {
       this.state.mosaic.shape = e.target.value;
       this.renderCurrentEngine();
     });
+    if (this.el.msFitDocumentToggle) {
+      this.el.msFitDocumentToggle.addEventListener('change', (e) => {
+        this.state.mosaic.fitDocumentToDesign = e.target.checked;
+        this.renderCurrentEngine();
+      });
+    }
     this.el.msSpacingSlider.addEventListener('input', (e) => {
       this.state.mosaic.spacing = parseInt(e.target.value, 10);
       this.el.msSpacingVal.textContent = `${e.target.value} px`;
@@ -2341,8 +2361,9 @@ class App {
     const numCols = numRows > 0 ? grid[0].length : 0;
     if (numRows === 0 || numCols === 0) return;
 
-    const c = Math.floor((x / this.el.outputCanvas.width) * numCols);
-    const r = Math.floor((y / this.el.outputCanvas.height) * numRows);
+    const step = Math.max(1, (this.state.mosaic.tileSize || 16) + (this.state.mosaic.spacing || 0));
+    const c = Math.floor((x + (this.state.mosaicFitOffsetX || 0)) / step);
+    const r = Math.floor((y + (this.state.mosaicFitOffsetY || 0)) / step);
     if (r < 0 || r >= numRows || c < 0 || c >= numCols) return;
 
     const tool = this.state.activeTool;
@@ -2526,10 +2547,13 @@ class App {
     const numCols = numRows > 0 ? grid[0].length : 0;
     if (numRows === 0 || numCols === 0) return;
 
-    const startC = Math.floor((this.state.drawStartX / this.el.outputCanvas.width) * numCols);
-    const startR = Math.floor((this.state.drawStartY / this.el.outputCanvas.height) * numRows);
-    const endC = Math.floor((x / this.el.outputCanvas.width) * numCols);
-    const endR = Math.floor((y / this.el.outputCanvas.height) * numRows);
+    const step = Math.max(1, (this.state.mosaic.tileSize || 16) + (this.state.mosaic.spacing || 0));
+    const offsetX = this.state.mosaicFitOffsetX || 0;
+    const offsetY = this.state.mosaicFitOffsetY || 0;
+    const startC = Math.floor((this.state.drawStartX + offsetX) / step);
+    const startR = Math.floor((this.state.drawStartY + offsetY) / step);
+    const endC = Math.floor((x + offsetX) / step);
+    const endR = Math.floor((y + offsetY) / step);
 
     const tool = this.state.activeTool;
     const rgb = this.state.activeColor || [99, 102, 241];
@@ -2970,6 +2994,8 @@ class App {
     this.state.mosaic.autoClean = true;
     this.state.mosaic.noiseThreshold = 20;
     this.state.mosaic.edgeSensitivity = 20;
+    this.state.mosaic.fitDocumentToDesign = true;
+    if (this.el.msFitDocumentToggle) this.el.msFitDocumentToggle.checked = true;
     this.state.mosaic.qualityChecks = {
       outside: true,
       edges: true,

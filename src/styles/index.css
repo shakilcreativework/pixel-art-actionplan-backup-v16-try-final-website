@@ -1153,6 +1153,16 @@ select:focus, input:focus {
   color: white;
   box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
 }
+
+.tool-btn:focus-visible,
+.editor-color-input:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 2px;
+}
+
+.editor-color-swatch {
+  box-shadow: 0 0 0 2px var(--editor-active-color, #6366f1);
+}
 /* Floating Zoom & Viewport Controls */
 .floating-zoom-controls {
   position: absolute;

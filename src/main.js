@@ -595,6 +595,7 @@ class App {
   }
 
   setImageData(imageData, width, height, fileName = 'avatar.jpg') {
+    this.resetForNewImage();
     this.resetMosaicBgRemoval();
     this.state.rawImage = imageData;
     this.state.sourceFileName = fileName;
@@ -604,6 +605,36 @@ class App {
     this.showToast(`Loaded image (${width} × ${height})`);
     this.reprocess();
     this.fitToScreen();
+  }
+
+  resetForNewImage() {
+    // A replacement design starts a fresh editing session: no prior edits,
+    // drawing strokes, mosaic cell overrides, or in-progress gestures carry over.
+    this.history.clear();
+    this.pencilEngine.clear();
+    this.state.pixelGrid = null;
+    this.state.mosaicGrid = null;
+    this.state.mosaic.manualOverrides = {};
+    this.state.mosaic.protectedIds.clear();
+    this.state.mosaic.manualRemoveIds.clear();
+    this.state.mosaic.manualRestoreIds.clear();
+    this.state.mosaicErasePaletteDirty = false;
+    this.state.isDrawing = false;
+    this.state.drawStartX = 0;
+    this.state.drawStartY = 0;
+    this.state.activeTool = 'pencil';
+    this.state.activePaletteIndex = 0;
+    this.state.activeColor = [99, 102, 241];
+
+    this.el.toolButtons?.forEach((button) => {
+      button.classList.toggle('active', button.dataset.tool === 'pencil');
+    });
+    this.el.pixelToolbar?.setAttribute('data-active-tool', 'pencil');
+    this.el.pixelToolbar?.style.setProperty('--editor-active-color', '#6366f1');
+    if (this.el.editorColorInput) this.el.editorColorInput.value = '#6366f1';
+    if (this.el.editorColorSwatch) this.el.editorColorSwatch.style.backgroundColor = '#6366f1';
+    if (this.el.editorColorInput) this.el.editorColorInput.setAttribute('aria-label', 'Active draw color #6366f1');
+    this.pencilEngine.resize(0, 0);
   }
 
   updateDropzonePreview(imageData, fileName) {
@@ -1149,7 +1180,7 @@ class App {
       if (file) {
         ImageLoader.loadFromFile(file).then(({ imageData, width, height }) => {
           this.setImageData(imageData, width, height, file.name);
-        }).catch(err => alert(err.message));
+        }).catch(err => alert(err.message)).finally(() => { e.target.value = ''; });
       }
     });
 
@@ -1311,6 +1342,8 @@ class App {
         btn.classList.add('active');
         const tool = btn.getAttribute('data-tool');
         this.state.activeTool = tool;
+        this.el.pixelToolbar?.setAttribute('data-active-tool', tool);
+        this.showStatus(`${btn.getAttribute('aria-label') || tool} tool active`);
         if (tool === 'eraser') {
           this.setMosaicManualTool('remove');
         } else {
@@ -1324,6 +1357,8 @@ class App {
       if (this.el.editorColorSwatch) this.el.editorColorSwatch.style.backgroundColor = hex;
       const rgb = hexToRgb(hex);
       this.state.activeColor = rgb;
+      this.el.pixelToolbar?.style.setProperty('--editor-active-color', hex);
+      this.el.editorColorInput?.setAttribute('aria-label', `Active draw color ${hex}`);
 
       if (this.state.pixelGrid) {
         let idx = this.state.pixelGrid.palette.findIndex(

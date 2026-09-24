@@ -87,19 +87,29 @@ export class MosaicEngine {
    * Coordinates are expanded to complete tile boundaries before translation.
    */
   static getDesignFit(grid, width, height, tileSize = 16, spacing = 0) {
-    const cells = (grid || []).flat().filter(cell =>
-      cell && !cell.isRemoved && cell.occupied && cell.sample && cell.sample.a >= 10
-    );
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    let hasDesignCells = false;
 
-    if (cells.length === 0) {
+    // Scan incrementally so large artboards never exceed the JS argument limit
+    // through Math.min(...cells) / Math.max(...cells).
+    for (const row of (grid || [])) {
+      for (const cell of row || []) {
+        if (!cell || cell.isRemoved || !cell.occupied || !cell.sample || cell.sample.a < 10) continue;
+        hasDesignCells = true;
+        minX = Math.min(minX, cell.x);
+        minY = Math.min(minY, cell.y);
+        maxX = Math.max(maxX, cell.x + (cell.width || tileSize));
+        maxY = Math.max(maxY, cell.y + (cell.height || tileSize));
+      }
+    }
+
+    if (!hasDesignCells) {
       const safe = MosaicEngine.getTileSafeDimensions(width, height, tileSize, spacing);
       return { x: 0, y: 0, width: safe.width, height: safe.height, fitted: false };
     }
-
-    const minX = Math.min(...cells.map(cell => cell.x));
-    const minY = Math.min(...cells.map(cell => cell.y));
-    const maxX = Math.max(...cells.map(cell => cell.x + (cell.width || tileSize)));
-    const maxY = Math.max(...cells.map(cell => cell.y + (cell.height || tileSize)));
     const step = Math.max(1, tileSize + spacing);
     const originX = Math.floor(minX / step) * step;
     const originY = Math.floor(minY / step) * step;
@@ -644,7 +654,12 @@ export class MosaicEngine {
 
     const numRows = grid.length;
     const numCols = numRows > 0 ? grid[0].length : 0;
-    const tiles = grid.flat().filter(c => !c.isRemoved);
+    const tiles = [];
+    for (const row of grid) {
+      for (const cell of row) {
+        if (cell && !cell.isRemoved) tiles.push(cell);
+      }
+    }
     const qaMismatches = PostQualityPass.generateDiagnostics(grid, numRows, numCols);
 
     const fit = options.fitDocumentToDesign
@@ -878,7 +893,12 @@ export class MosaicEngine {
     });
 
     const contourResult = ContourTracer.trace(grid);
-    const tiles = grid.flat().filter(c => !c.isRemoved);
+    const tiles = [];
+    for (const row of grid) {
+      for (const cell of row) {
+        if (cell && !cell.isRemoved) tiles.push(cell);
+      }
+    }
     const fit = options.fitDocumentToDesign
       ? MosaicEngine.getDesignFit(grid, width, height, cellSize, spacing)
       : { x: 0, y: 0, ...MosaicEngine.getTileSafeDimensions(width, height, cellSize, spacing), fitted: false };
